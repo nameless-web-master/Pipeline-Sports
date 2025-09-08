@@ -5,12 +5,16 @@ import { Logo } from '../../../assets';
 import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import SocialButton from '../../../components/SocialButton';
+import LegalText from '../../../components/LegalText';
+import validateEmail from '../../../utils/validateEmail';
+import type { Gateway as GatewayScreenProps } from '../../../types/navigation';
 
 /**
  * Gateway screen for authentication entry: email and social sign-in.
  */
-const Gateway = (): ReactElement => {
-    const [email, setEmail] = useState<string>('');
+const Gateway = ({ navigation }: GatewayScreenProps): ReactElement => {
+    const [email, setEmail] = useState<string>('nameless@gmail.com');
+    const isEmailValid = validateEmail(email);
 
     return (
         <View style={styles.screen}>
@@ -30,11 +34,18 @@ const Gateway = (): ReactElement => {
                     autoCapitalize="none"
                     autoCorrect={false}
                 />
-                <Button title="Continue with Email" variant="primary" onPress={() => { }} />
+                <Button
+                    title="Continue with Email"
+                    variant="primary"
+                    onPress={() => navigation.navigate('SignupWithEmailScreen', { email })}
+                    disabled={!isEmailValid}
+                />
 
                 <Text style={styles.or}>or</Text>
 
-                <View>
+                <View style={{
+                    gap: aliasTokens.spacing.Small
+                }}>
                     <SocialButton
                         title="Continue with Google"
                         iconUri="https://img.icons8.com/color/48/google-logo.png"
@@ -48,13 +59,7 @@ const Gateway = (): ReactElement => {
                 </View>
             </View>
 
-            <Text style={styles.legal}>
-                By proceeding, you acknowledge and agree to our
-                <Text style={styles.link}> Terms</Text>
-                <Text> and</Text>
-                <Text style={styles.link}> Privacy Policy</Text>
-                <Text>.</Text>
-            </Text>
+            <LegalText />
         </View>
     );
 };
@@ -89,18 +94,7 @@ const styles = StyleSheet.create({
         color: aliasTokens.color.text.Secondary,
         textAlign: 'center',
     },
-    legal: {
-        ...aliasTokens.typography.body.XSmall,
-        color: aliasTokens.color.text.Tertiary,
-        textAlign: 'center',
-        marginTop: aliasTokens.spacing.Medium,
-        marginHorizontal: 29
-    },
-    link: {
-        color: aliasTokens.color.brand.Primary,
-    },
+    
 });
 
 export default Gateway;
-
-

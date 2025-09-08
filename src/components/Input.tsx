@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     // marginBottom: aliasTokens.spacing.Small,
   },
   label: {
-    ...aliasTokens.typography.labelText.Medium,
+    ...aliasTokens.typography.labelText.Default,
     color: aliasTokens.color.text.Primary,
     marginBottom: aliasTokens.spacing.XXSmall,
   },

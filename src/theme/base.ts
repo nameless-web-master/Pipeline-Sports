@@ -148,6 +148,11 @@ export const designTokens = {
         fontSize: 12,
         lineHeight: 16,
       },
+      Mini: {
+        fontFamily: 'Poppins_500SemiBold',
+        fontSize: 16,
+        lineHeight: 22,
+      },
     },
     buttonText: {
       Medium: {
@@ -174,6 +179,12 @@ export const designTokens = {
         fontFamily: 'Poppins_500Medium',
         fontSize: 14,
         lineHeight: 22,
+        letterSpacing: 0,
+      },
+      Default: {
+        fontFamily: 'Poppins_500Medium',
+        fontSize: 13,
+        lineHeight: 20,
         letterSpacing: 0,
       },
       Small: {

@@ -56,6 +56,7 @@ export const aliasTokens = {
       Success: designTokens.colors.green[700],
       Disabled: designTokens.colors.gray[100],
       Dark: designTokens.colors.gray[800],
+      Black: designTokens.colors.gray[900],
     },
     brand: {
       Primary: designTokens.colors.blue[500],
@@ -202,6 +203,9 @@ export const aliasTokens = {
       XXSmall: {
         ...designTokens.typography.title.XXSmall,
       },
+      Mini: {
+        ...designTokens.typography.title.Mini,
+      }
     },
     buttonText: {
       Medium: {
@@ -217,6 +221,9 @@ export const aliasTokens = {
     labelText: {
       Medium: {
         ...designTokens.typography.labelText.Medium,
+      },
+      Default: {
+        ...designTokens.typography.labelText.Default,
       },
       Small: {
         ...designTokens.typography.labelText.Small,

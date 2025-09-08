@@ -1,4 +1,4 @@
-import { StackNavigationProp } from '@react-navigation/stack';
+import { StackScreenProps } from '@react-navigation/stack';
 
 // Define Root stack param list
 export type RootStackParamList = {
@@ -7,16 +7,13 @@ export type RootStackParamList = {
   OnBoarding: undefined;
   Entry: undefined;
   Gateway: undefined;
+  SignupWithEmailScreen: { email?: string } | undefined;
+  ResendEmailScreen: { email?: string } | undefined;
 };
 
-// Generic navigation prop type
-export type ScreenNavigationProp<Screen extends keyof RootStackParamList> =
-  StackNavigationProp<RootStackParamList, Screen>;
-
-// Screen props interface
-export interface ScreenProps<Screen extends keyof RootStackParamList> {
-  navigation: ScreenNavigationProp<Screen>;
-}
+// Generic screen props type (includes navigation and route)
+export type ScreenProps<Screen extends keyof RootStackParamList> =
+  StackScreenProps<RootStackParamList, Screen>;
 
 // Use the generic interface for each screen component
 export type OnBoardingScreenProps = ScreenProps<'OnBoarding'>;
@@ -24,3 +21,5 @@ export type HomeScreenProps = ScreenProps<'Home'>;
 export type ProfileScreenProps = ScreenProps<'Profile'>;
 export type entryMain = ScreenProps<'Entry'>;
 export type Gateway = ScreenProps<'Gateway'>;
+export type SignupWithEmailScreen = ScreenProps<'SignupWithEmailScreen'>;
+export type ResendEmailScreen = ScreenProps<'ResendEmailScreen'>;

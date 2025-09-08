@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 
 import { EntryTemplate } from "./components/template";
-import { OnBoardingScreenProps } from "../../../types/navigation";
+import { entryMain } from "../../../types/navigation";
 
 
-export const EntryMain = ({ navigation }: OnBoardingScreenProps) => {
+export const EntryMain = ({ navigation }: entryMain) => {
     const [Nr, setNr] = useState<number>(0);
 
     return <EntryTemplate Nr={Nr} setNr={setNr} navigation={navigation} />

@@ -1,13 +1,13 @@
 // src/screens/onBoarding/entry/index.tsx
 import React, { ReactElement, useEffect } from 'react';
 import { View, Image } from 'react-native';
-import { OnBoardingScreenProps } from '../../../types/navigation';
+import { HomeScreenProps } from '../../../types/navigation';
 
 import { HomeLogo } from '../../../assets';
 import { aliasTokens } from '../../../theme/alias';
 
 // Splash-like onboarding entry that redirects to Entry after a short delay.
-const OnBoardingScreen = ({ navigation }: OnBoardingScreenProps): ReactElement => {
+const OnBoardingScreen = ({ navigation }: HomeScreenProps): ReactElement => {
     // Use an effect for navigation side-effects to avoid running during render.
     useEffect(() => {
         const timer = setTimeout(() => navigation.navigate('Entry'), 1000);

@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         flexDirection: 'row',
         backgroundColor: aliasTokens.color.background.Primary,
-        marginBottom: aliasTokens.spacing.Small,
+        // marginBottom: aliasTokens.spacing.Small,
     },
     socialIcon: {
         width: 22,

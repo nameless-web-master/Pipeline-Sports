@@ -6,7 +6,7 @@ import { StaticContent } from "../../../../strings";
 import { aliasTokens } from "../../../../theme/alias";
 import Dots from "../../../../components/dots";
 import Button from "../../../../components/Button";
-import { OnBoardingScreenProps } from "../../../../types/navigation";
+import { OnBoardingScreenProps, entryMain } from "../../../../types/navigation";
 import FadeSlideIn from "../../../../components/FadeSlideIn";
 import BottomGradient from "../../../../components/BottomGradient";
 
@@ -34,7 +34,7 @@ const EntryList: Array<{ image: ImageSourcePropType; content: string }> = [
 type EntryTemplateProps = {
     Nr: number; // current slide index (0-based)
     setNr: (next: number) => void;
-    navigation: OnBoardingScreenProps['navigation'];
+    navigation: entryMain['navigation'];
 };
 
 /**
