@@ -4,12 +4,12 @@ export const designTokens = {
   // =============================================================================
   // COLOR TOKENS
   // =============================================================================
-  
+
   colors: {
     // Gray Scale
     gray: {
       20: '#FBFBF8',
-      40: '#F3F5F5', 
+      40: '#F3F5F5',
       60: '#ECEFF1',
       80: '#CFD8DC',
       100: '#B0BEC5',
@@ -78,100 +78,92 @@ export const designTokens = {
   typography: {
     display: {
       Medium: {
-        fontFamily: 'Poppins',
-        fontWeight: '600', // Semibold
+        fontFamily: 'Poppins_600SemiBold',
         fontSize: 28,
         lineHeight: 36,
         letterSpacing: -0.25,
       },
       Small: {
-        fontFamily: 'Poppins',
-        fontWeight: '600', // Semibold
+        fontFamily: 'Poppins_600SemiBold',
         fontSize: 22,
         lineHeight: 32,
-        letterSpacing: -0.1,
+        letterSpacing: -0.25,
       },
     },
     body: {
       XLarge: {
-        fontFamily: 'Poppins',
-        fontWeight: '400', // Regular
+        fontFamily: 'Poppins_400Regular',
         fontSize: 18,
         lineHeight: 28,
         letterSpacing: 0,
       },
       Large: {
-        fontFamily: 'Poppins',
-        fontWeight: '400', // Regular
+        fontFamily: 'Poppins_400Regular',
         fontSize: 16,
         lineHeight: 28,
         letterSpacing: 0,
       },
       Medium: {
-        fontFamily: 'Poppins',
-        fontWeight: '400', // Regular
+        fontFamily: 'Poppins_400Regular',
         fontSize: 15,
         lineHeight: 24,
         letterSpacing: 0,
       },
       Small: {
-        fontFamily: 'Poppins',
-        fontWeight: '400', // Regular
+        fontFamily: 'Poppins_400Regular',
         fontSize: 13,
-        lineHeight: 24,
+        lineHeight: 20,
         letterSpacing: 0,
       },
       XSmall: {
-        fontFamily: 'Poppins',
-        fontWeight: '400', // Regular
+        fontFamily: 'Poppins_400Regular',
         fontSize: 12,
-        lineHeight: 22,
-        letterSpacing: 0.1,
+        lineHeight: 18,
+        letterSpacing: 0.2,
       },
     },
     title: {
       Large: {
-        fontFamily: 'Poppins',
-        fontWeight: '600',
+        fontFamily: 'Poppins_600SemiBold',
         fontSize: 24,
         lineHeight: 30,
       },
       Medium: {
-        fontFamily: 'Poppins',
-        fontWeight: '600',
+        fontFamily: 'Poppins_600SemiBold',
         fontSize: 18,
         lineHeight: 22,
       },
       Small: {
-        fontFamily: 'Poppins',
-        fontWeight: '600',
+        fontFamily: 'Poppins_600SemiBold',
         fontSize: 16,
         lineHeight: 20,
       },
       XSmall: {
-        fontFamily: 'Poppins',
-        fontWeight: '600',
+        fontFamily: 'Poppins_600SemiBold',
         fontSize: 14,
         lineHeight: 18,
       },
       XXSmall: {
-        fontFamily: 'Poppins',
-        fontWeight: '600',
+        fontFamily: 'Poppins_600SemiBold',
         fontSize: 12,
         lineHeight: 16,
       },
     },
     buttonText: {
       Medium: {
-        fontFamily: 'Poppins',
-        fontWeight: '600',
+        fontFamily: 'Poppins_600SemiBold',
         fontSize: 15,
         lineHeight: 26,
         letterSpacing: 0,
       },
+      Default: {
+        fontFamily: 'Poppins_500SemiBold',
+        fontSize: 14,
+        lineHeight: 26,
+        letterSpacing: 0,
+      },
       Small: {
-        fontFamily: 'Poppins',
-        fontWeight: '600',
+        fontFamily: 'Poppins_600SemiBold',
         fontSize: 13,
         lineHeight: 24,
         letterSpacing: 0,
@@ -179,15 +171,13 @@ export const designTokens = {
     },
     labelText: {
       Medium: {
-        fontFamily: 'Poppins',
-        fontWeight: '500',
+        fontFamily: 'Poppins_500Medium',
         fontSize: 14,
         lineHeight: 22,
         letterSpacing: 0,
       },
       Small: {
-        fontFamily: 'Poppins',
-        fontWeight: '500',
+        fontFamily: 'Poppins_500Medium',
         fontSize: 12,
         lineHeight: 18,
         letterSpacing: 0.1,
@@ -195,21 +185,27 @@ export const designTokens = {
     },
     inputText: {
       Medium: {
-        fontFamily: 'Poppins',
-        fontWeight: '500',
+        fontFamily: 'Poppins_500Medium',
         fontSize: 16,
         lineHeight: 20,
         letterSpacing: 0,
       },
     },
+    entryText: {
+      fontFamily: 'Poppins_500Medium',
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: 0,
+    }
   },
 
 
   // =============================================================================
   // SIZE BASE TOKENS
   // =============================================================================
-  
+
   sizes: {
+    8: 8,
     14: 14,
     18: 18,
     24: 24,
@@ -218,12 +214,16 @@ export const designTokens = {
     50: 50,
     58: 58,
     64: 64,
+    full: '100%',
+    half: '50%',
+    third: '33.33333%',
+    quarter: '25%',
   },
 
   // =============================================================================
   // SPACE BASE TOKENS
   // =============================================================================
-  
+
   spacing: {
     0: 0,
     2: 2,
@@ -233,6 +233,7 @@ export const designTokens = {
     20: 20,
     32: 32,
     52: 52,
+    58: 58,
     72: 72
   },
 
@@ -251,6 +252,31 @@ export const designTokens = {
   borderWidth: {
     1: 1,
     2: 2,
+  },
+
+  // =============================================================================
+  // Basic Stylesheet
+  // =============================================================================
+
+  basic: {
+
+    // Display
+
+    dFlex: { flexDirection: 'row' },
+
+    // Justify-content
+
+    justifyCenter: { justifyContent: 'center' },
+    justifyStart: { justifyContent: 'flex-start' },
+    justifyEnd: { justifyContent: 'flex-end' },
+    justifyBetween: { justifyContent: 'space-between' },
+
+    //Align-items
+
+    alignCenter: { alignItems: 'center' },
+    alignStart: { alignItems: 'flex-start' },
+    alignEnd: { alignItems: 'flex-end' },
+
   },
 
   // =============================================================================

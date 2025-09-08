@@ -2,17 +2,32 @@ import React from 'react';
 import { Pressable, Text, StyleSheet, ViewStyle, TextStyle, GestureResponderEvent, Animated, StyleProp } from 'react-native';
 import { aliasTokens } from '../theme/alias';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'outline' | 'danger' | 'ghost';
+/**
+ * Visual variants supported by the Button component.
+ */
+export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'outline' | 'danger' | 'ghost' | 'dark';
 
+/**
+ * Props for the Button component
+ */
 interface ButtonProps {
+  /** Button label text */
   title: string;
+  /** Callback fired on press */
   onPress: (event: GestureResponderEvent) => void;
+  /** Visual style variant (default: 'primary') */
   variant?: ButtonVariant;
+  /** Disable interactions and apply disabled styles */
   disabled?: boolean;
+  /** Optional style overrides for the container */
   style?: StyleProp<ViewStyle>;
+  /** Optional style overrides for the label */
   textStyle?: StyleProp<TextStyle>;
 }
 
+/**
+ * A theme-aware button with pressed-state animation and variant-driven styles.
+ */
 const Button: React.FC<ButtonProps> = ({ title, onPress, variant = 'primary', disabled = false, style, textStyle }) => {
   const [pressed, setPressed] = React.useState(false);
   const backgroundColorAnim = React.useRef(new Animated.Value(0)).current;
@@ -34,6 +49,7 @@ const Button: React.FC<ButtonProps> = ({ title, onPress, variant = 'primary', di
       return aliasTokens.button.primary.borderDisabled;
     }
     if (variant === 'danger') return 'transparent';
+    if (variant === 'dark') return aliasTokens.color.text.Dark;
     if (variant === 'ghost') return pressed ? aliasTokens.button.ghost.borderPressed : aliasTokens.button.ghost.borderEnabled;
     if (variant === 'primary' || variant === 'secondary' || variant === 'tertiary' || variant === 'outline') {
       return pressed ? aliasTokens.button[variant].borderPressed : aliasTokens.button[variant].borderEnabled;
@@ -44,33 +60,37 @@ const Button: React.FC<ButtonProps> = ({ title, onPress, variant = 'primary', di
     if (disabled) {
       return aliasTokens.button.primary.textDisabled;
     }
-    if (variant === 'primary' || variant === 'danger') return aliasTokens.color.text.InversePrimary;
+    if (variant === 'primary' || variant === 'danger' || variant === 'dark') return aliasTokens.color.text.InversePrimary;
     if (variant === 'secondary' || variant === 'ghost') return aliasTokens.color.brand.Primary;
     if (variant === 'outline') return aliasTokens.color.text.Primary;
     if (variant === 'tertiary') return aliasTokens.color.brand.Primary;
     return aliasTokens.color.text.Primary;
   };
-
+  /**
+   * Interpolated background color used for press-in/out animation
+   */
   const getAnimatedBackgroundColor = () => {
     if (disabled) {
       return aliasTokens.button.primary.fillDisabled;
     }
     if (variant === 'danger') return aliasTokens.color.text.Error;
-    
+    if (variant === 'dark') return aliasTokens.color.text.Dark;
+
     if (variant === 'primary' || variant === 'secondary' || variant === 'tertiary' || variant === 'outline') {
       const enabledColor = aliasTokens.button[variant].fillEnabled;
       const pressedColor = aliasTokens.button[variant].fillPressed;
-      
+
       return backgroundColorAnim.interpolate({
         inputRange: [0, 1],
         outputRange: [enabledColor, pressedColor],
       });
     }
-    
+
     // Default for other variants
     return aliasTokens.button.primary.fillEnabled;
   };
 
+  /** Animate to pressed state */
   const handlePressIn = () => {
     setPressed(true);
     Animated.timing(backgroundColorAnim, {
@@ -80,6 +100,7 @@ const Button: React.FC<ButtonProps> = ({ title, onPress, variant = 'primary', di
     }).start();
   };
 
+  /** Animate back to enabled state */
   const handlePressOut = () => {
     setPressed(false);
     Animated.timing(backgroundColorAnim, {
@@ -121,7 +142,6 @@ const Button: React.FC<ButtonProps> = ({ title, onPress, variant = 'primary', di
 const styles = StyleSheet.create({
   base: {
     height: aliasTokens.sizes.Medium,
-    minWidth: 120,
     borderRadius: aliasTokens.borderRadius.Default,
     justifyContent: 'center',
     alignItems: 'center',
@@ -134,7 +154,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    ...aliasTokens.typography.buttonText.Medium,
+    ...aliasTokens.typography.buttonText.Default,
     textAlign: 'center',
   },
 });

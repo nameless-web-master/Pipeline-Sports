@@ -2,15 +2,27 @@ import React, { useState, useRef } from 'react';
 import { View, TextInput, StyleSheet, Text, TextInputProps, Animated } from 'react-native';
 import { aliasTokens } from '../theme/alias';
 
+/**
+ * Props for the Input component
+ */
 interface InputProps extends TextInputProps {
+  /** Optional label displayed above the input */
   label?: string;
+  /** Controlled value */
   value: string;
+  /** Change handler for the controlled value */
   onChangeText: (text: string) => void;
+  /** Placeholder text */
   placeholder?: string;
+  /** Error state to indicate validation failure */
   error?: boolean;
+  /** Disabled state to prevent editing */
   disabled?: boolean;
 }
 
+/**
+ * Theme-aware text input with focus border animation and states.
+ */
 const Input: React.FC<InputProps> = ({ label, value, onChangeText, placeholder, error = false, disabled = false, ...props }) => {
   const [isFocused, setIsFocused] = useState(false);
   const borderAnim = useRef(new Animated.Value(0)).current;
@@ -33,6 +45,7 @@ const Input: React.FC<InputProps> = ({ label, value, onChangeText, placeholder, 
     }).start();
   };
 
+  // Interpolated border color animated on focus/blur
   const borderColor = borderAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [aliasTokens.input.BorderEnabled, aliasTokens.input.BorderActive],
@@ -64,7 +77,7 @@ const Input: React.FC<InputProps> = ({ label, value, onChangeText, placeholder, 
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    marginBottom: aliasTokens.spacing.Small,
+    // marginBottom: aliasTokens.spacing.Small,
   },
   label: {
     ...aliasTokens.typography.labelText.Medium,

@@ -1,9 +1,9 @@
 // src/navigation/AppNavigator.tsx
-import React from 'react';
+import React, { memo, ReactElement } from 'react';
 import Navigation from './Navigation';
 
-const AppNavigator = () => {
+const AppNavigator = (): ReactElement => {
   return <Navigation />;
 };
 
-export default AppNavigator;
+export default memo(AppNavigator);

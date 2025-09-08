@@ -5,7 +5,7 @@ export const aliasTokens = {
   // =============================================================================
   // SPACE ALIAS TOKENS
   // =============================================================================
-  
+
   spacing: {
     None: designTokens.spacing[0] ?? 0,
     Tiny: designTokens.spacing[2] ?? 2,
@@ -15,13 +15,15 @@ export const aliasTokens = {
     Medium: designTokens.spacing[20] ?? 20,
     Large: designTokens.spacing[32] ?? 32,
     XLarge: designTokens.spacing[52] ?? 52,
-    XXLarge: designTokens.spacing[72] ?? 72,
+    XXLarge: designTokens.spacing[58] ?? 58,
+    MaxLarge: designTokens.spacing[72] ?? 72,
   },
 
   // =============================================================================
   // SIZE ALIAS TOKENS
   // =============================================================================
   sizes: {
+    XXTiny: designTokens.sizes[8],
     XTiny: designTokens.sizes[14],
     Tiny: designTokens.sizes[18],
     XXSmall: designTokens.sizes[24],
@@ -30,6 +32,14 @@ export const aliasTokens = {
     Medium: designTokens.sizes[50],
     Large: designTokens.sizes[58],
     XLarge: designTokens.sizes[64],
+    full: designTokens.sizes.full,
+    half: designTokens.sizes.half,
+    third: designTokens.sizes.third,
+    quarter: designTokens.sizes.quarter,
+    allFullSize: {
+      width: designTokens.sizes.full,
+      height: designTokens.sizes.full,
+    }
   },
 
   // =============================================================================
@@ -38,13 +48,14 @@ export const aliasTokens = {
   color: {
     text: {
       Primary: designTokens.colors.gray[940],
-      Secondary: designTokens.colors.gray[700],
+      Secondary: designTokens.colors.gray[600],
       Tertiary: designTokens.colors.gray[500],
       InversePrimary: designTokens.colors.white,
       Brand: designTokens.colors.blue[500],
       Error: designTokens.colors.red[500],
       Success: designTokens.colors.green[700],
       Disabled: designTokens.colors.gray[100],
+      Dark: designTokens.colors.gray[800],
     },
     brand: {
       Primary: designTokens.colors.blue[500],
@@ -52,14 +63,15 @@ export const aliasTokens = {
     border: {
       Light: designTokens.colors.gray[60],
       Default: designTokens.colors.gray[80],
-      Dark: designTokens.colors.gray[100]
+      Dark: designTokens.colors.gray[100],
     },
-      background: {
-    Primary: designTokens.colors.white,
-    Secondary: designTokens.colors.gray[40],
-    Tertiary: designTokens.colors.gray[60],
-    Inverse: designTokens.colors.gray[920],
-  },
+    background: {
+      Primary: designTokens.colors.white,
+      Secondary: designTokens.colors.gray[40],
+      Home: designTokens.colors.blue[500],
+      Tertiary: designTokens.colors.gray[60],
+      Inverse: designTokens.colors.gray[920],
+    },
     semantic: {
       success: {
         Light: designTokens.colors.green[50],
@@ -73,6 +85,10 @@ export const aliasTokens = {
         Light: designTokens.colors.gray[40],
         Default: designTokens.colors.gray[900],
       },
+    },
+    dot: {
+      active: designTokens.colors.blue[500],
+      inactive: designTokens.colors.gray[800]
     }
   },
 
@@ -150,7 +166,7 @@ export const aliasTokens = {
     Full: designTokens.borderRadius[100],
   },
 
-    // =============================================================================
+  // =============================================================================
   // MENU LINK ALIAS TOKENS
   // =============================================================================
   menuLink: {
@@ -191,6 +207,9 @@ export const aliasTokens = {
       Medium: {
         ...designTokens.typography.buttonText.Medium,
       },
+      Default: {
+        ...designTokens.typography.buttonText.Default,
+      },
       Small: {
         ...designTokens.typography.buttonText.Small,
       },
@@ -207,6 +226,9 @@ export const aliasTokens = {
       Medium: {
         ...designTokens.typography.inputText.Medium,
       },
+    },
+    entryText: {
+      ...designTokens.typography.entryText
     },
     body: {
       XLarge: {
@@ -234,6 +256,7 @@ export const aliasTokens = {
     Default: designTokens.borderWidth[1],
   },
 
+
   // =============================================================================
   // MOTION ALIAS TOKENS
   // =============================================================================
@@ -247,7 +270,34 @@ export const aliasTokens = {
     transition: {
       Base: designTokens.motion.transition.base,
     },
-  }
+  },
+
+  // =============================================================================
+  // Basic Stylesheet
+  // =============================================================================
+
+  basic: {
+    dFlexCenter: {
+      ...designTokens.basic.dFlex,
+      ...designTokens.basic.justifyCenter,
+      ...designTokens.basic.alignCenter
+    },
+    dFlexLeft: {
+      ...designTokens.basic.dFlex,
+      ...designTokens.basic.justifyStart,
+      ...designTokens.basic.alignCenter
+    },
+    dFlexRight: {
+      ...designTokens.basic.dFlex,
+      ...designTokens.basic.justifyEnd,
+      ...designTokens.basic.alignCenter
+    },
+    dFlexBetween: {
+      ...designTokens.basic.dFlex,
+      ...designTokens.basic.justifyBetween,
+      ...designTokens.basic.alignCenter
+    }
+  },
 } as const;
 
 // Type definitions

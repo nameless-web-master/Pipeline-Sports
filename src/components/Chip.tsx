@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { aliasTokens } from 'src/theme/alias';
+import { aliasTokens } from '../theme/alias';
 
 interface ChipProps {
   label: string;
