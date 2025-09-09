@@ -6,11 +6,26 @@ import { HomeScreenProps } from '../../../types/navigation';
 import { HomeLogo } from '../../../components/Logo';
 import { aliasTokens } from '../../../theme/alias';
 
-// Splash-like onboarding entry that redirects to Entry after a short delay.
+/**
+ * Splash screen component for onboarding entry
+ * 
+ * Displays a brief splash screen with the app logo before automatically
+ * navigating to the main onboarding flow. This provides a smooth transition
+ * and branding opportunity when users first open the app.
+ * 
+ * Features:
+ * - Automatic navigation after 1 second delay
+ * - Centered logo display
+ * - Clean, minimal design using design tokens
+ * 
+ * @param props - Navigation props for screen transitions
+ * @returns JSX element representing the splash screen
+ */
 const OnBoardingScreen = ({ navigation }: HomeScreenProps): ReactElement => {
-    // Use an effect for navigation side-effects to avoid running during render.
+    // Auto-navigation effect - runs after component mounts
     useEffect(() => {
         const timer = setTimeout(() => navigation.navigate('Entry'), 1000);
+        // Cleanup timer on component unmount to prevent memory leaks
         return () => clearTimeout(timer);
     }, [navigation]);
 
@@ -21,7 +36,7 @@ const OnBoardingScreen = ({ navigation }: HomeScreenProps): ReactElement => {
     );
 };
 
-// Simple full-screen centered container using design tokens
+// Full-screen centered container styles using design system tokens
 const styles = {
     ...aliasTokens.basic.dFlexCenter,
     width: aliasTokens.sizes.full,

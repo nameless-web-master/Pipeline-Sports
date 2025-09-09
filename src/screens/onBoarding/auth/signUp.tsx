@@ -1,5 +1,5 @@
 import React, { useCallback, memo, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Linking, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Linking, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import BackButton from '../../../components/BackButton';
 import Input from '../../../components/Input';
@@ -10,10 +10,15 @@ import validateEmail from '../../../utils/validateEmail';
 import type { SignupWithEmailScreen as SignupType } from '../../../types/navigation';
 import LegalText from '../../../components/LegalText';
 
+// Password validation regex patterns
 const LETTER_NUMBER_REGEX = /[A-Za-z]/;
 const DIGIT_REGEX = /\d/;
 const SPECIAL_CHAR_REGEX = /[^A-Za-z0-9]/;
 
+/**
+ * Individual password rule indicator component
+ * Shows a checkmark or empty circle with rule text
+ */
 const PasswordRule = memo(({ met, label }: { met: boolean; label: string }) => {
   return (
     <View style={styles.ruleRow}>
@@ -29,17 +34,25 @@ const PasswordRule = memo(({ met, label }: { met: boolean; label: string }) => {
 });
 PasswordRule.displayName = 'PasswordRule';
 
+/**
+ * Signup screen with email and password validation
+ * Features real-time password strength validation with visual indicators
+ */
 const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
+  // Form state management
   const [email, setEmail] = useState(route?.params?.email ?? '');
   const [password, setPassword] = useState('qwe123qw');
 
+  // Password validation rules - memoized for performance
   const emailValid = useMemo(() => validateEmail(email), [email]);
   const passHasMin = useMemo(() => password.length >= 8, [password]);
   const passHasLetterAndNumber = useMemo(() => LETTER_NUMBER_REGEX.test(password) && DIGIT_REGEX.test(password), [password]);
   const passHasSpecial = useMemo(() => SPECIAL_CHAR_REGEX.test(password), [password]);
 
+  // Overall form validation state
   const isFormValid = emailValid && passHasMin && passHasLetterAndNumber && passHasSpecial;
 
+  // Event handlers - memoized for performance
   const openLink = useCallback((url: string) => {
     Linking.openURL(url).catch(() => { });
   }, []);
@@ -49,20 +62,20 @@ const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
   }, [navigation]);
 
   const handleSignup = useCallback(() => {
-    // Hook up to signup flow when available
-
+    // TODO: Hook up to actual signup API when available
+    // For now, navigate to email verification screen
     navigation.navigate('ResendEmailScreen', { email });
-  }, []);
+  }, [navigation, email]);
 
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        {/* Navigation header */}
         <BackButton onPress={handleBack} style={styles.backButton} />
-
         <Text style={styles.title}>Signup with email</Text>
 
+        {/* Email input section */}
         <View style={styles.spacerSmall} />
-
         <Input
           label="Email"
           value={email}
@@ -74,8 +87,8 @@ const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
           error={email.length > 0 && !emailValid}
         />
 
+        {/* Password input section */}
         <View style={styles.spacerMedium} />
-
         <PasswordInput
           label="Password"
           value={password}
@@ -83,6 +96,7 @@ const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
           placeholder="••••••••"
         />
 
+        {/* Password validation rules */}
         <View>
           <Text style={styles.rulesHeader}>Your password must have:</Text>
           <PasswordRule met={passHasMin} label="8 characters minimum" />
@@ -90,8 +104,8 @@ const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
           <PasswordRule met={passHasSpecial} label="1 special character (Example: # ? $ & @)" />
         </View>
 
+        {/* Submit button */}
         <View style={styles.spacerLarge} />
-
         <Button
           title="Signup with email"
           onPress={handleSignup}
@@ -99,13 +113,16 @@ const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
           style={styles.cta}
         />
 
+        {/* Legal text footer */}
         <LegalText />
       </ScrollView>
     </View>
   );
 };
 
+// Component styles using design system tokens
 const styles = StyleSheet.create({
+  // Main container styles
   screen: {
     flex: 1,
     backgroundColor: aliasTokens.color.background.Primary,
@@ -114,6 +131,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: aliasTokens.spacing.Large,
     paddingTop: aliasTokens.spacing.XLarge,
   },
+  
+  // Header and navigation styles
   backButton: {
     alignSelf: 'flex-start',
   },
@@ -122,6 +141,8 @@ const styles = StyleSheet.create({
     color: aliasTokens.color.text.Primary,
     marginTop: aliasTokens.spacing.Large,
   },
+  
+  // Spacing utilities
   spacerSmall: {
     height: aliasTokens.spacing.Large,
   },
@@ -131,6 +152,8 @@ const styles = StyleSheet.create({
   spacerLarge: {
     height: aliasTokens.spacing.Medium,
   },
+  
+  // Password validation rules styles
   rulesHeader: {
     ...aliasTokens.typography.labelText.Small,
     color: aliasTokens.color.text.Black,
@@ -141,6 +164,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: aliasTokens.spacing.XXSmall,
   },
+  
+  // Unused rule icon styles (kept for potential future use)
   ruleIcon: {
     width: 16,
     height: 16,
@@ -156,6 +181,8 @@ const styles = StyleSheet.create({
     backgroundColor: aliasTokens.color.background.Primary,
     borderColor: aliasTokens.color.border.Light,
   },
+  
+  // Rule text styles
   ruleText: {
     ...aliasTokens.typography.body.XSmall,
     color: aliasTokens.color.text.Tertiary
@@ -166,6 +193,8 @@ const styles = StyleSheet.create({
   ruleTextUnmet: {
     color: aliasTokens.color.text.Secondary,
   },
+  
+  // Call-to-action button styles
   cta: {
     marginTop: aliasTokens.spacing.Small,
   },
