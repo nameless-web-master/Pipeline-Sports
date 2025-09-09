@@ -1,31 +1,33 @@
 import React, { ReactElement } from "react";
+import { Image, Text, View, StyleSheet } from "react-native";
 
-import { Entry, Logo, Entry1, Entry2, Entry3 } from "../../../../assets";
-import { Image, ImageSourcePropType, Text, View, StyleSheet } from "react-native";
-import { StaticContent } from "../../../../strings";
+import { ImagesAssets } from "../../../../assets";
 import { aliasTokens } from "../../../../theme/alias";
+import { StaticContent } from "../../../../strings";
+import { entryMain } from "../../../../types/navigation";
+
 import Dots from "../../../../components/dots";
 import Button from "../../../../components/Button";
-import { OnBoardingScreenProps, entryMain } from "../../../../types/navigation";
 import FadeSlideIn from "../../../../components/FadeSlideIn";
 import BottomGradient from "../../../../components/BottomGradient";
+import { LogoImage } from "../../../../components/Logo";
 
 // Static list of onboarding slides: image + content string
-const EntryList: Array<{ image: ImageSourcePropType; content: string }> = [
+const EntryList: Array<{ image: 'Entry' | 'Entry1' | 'Entry2' | 'Entry3'; content: string }> = [
     {
-        image: Entry,
+        image: 'Entry',
         content: StaticContent.Entry[0]
     },
     {
-        image: Entry1,
+        image: 'Entry1',
         content: StaticContent.Entry[1]
     },
     {
-        image: Entry2,
+        image: 'Entry2',
         content: StaticContent.Entry[2]
     },
     {
-        image: Entry3,
+        image: 'Entry3',
         content: StaticContent.Entry[3]
     },
 ];
@@ -50,7 +52,7 @@ export const EntryTemplate = ({ Nr, setNr, navigation }: EntryTemplateProps): Re
                 <View style={styles.imageWrapper}>
                     <FadeSlideIn trigger={Nr} style={styles.mainImage}>
                         <Image
-                            source={EntryList[Nr].image}
+                            source={{ uri: ImagesAssets(EntryList[Nr].image) }}
                             accessibilityLabel={`Entry${Nr}`}
                             style={styles.mainImage}
                             resizeMode="cover"
@@ -61,7 +63,7 @@ export const EntryTemplate = ({ Nr, setNr, navigation }: EntryTemplateProps): Re
             </View>
             <View style={{ padding: aliasTokens.spacing.Large }}>
                 <View style={aliasTokens.basic.dFlexLeft}>
-                    <Image source={Logo} accessibilityLabel={`Pipeline logo`} />
+                    <LogoImage />
                     <Text style={styles.titleText}>Pipeline</Text>
                 </View>
                 <Text style={styles.mainText}>{EntryList[Nr].content}</Text>

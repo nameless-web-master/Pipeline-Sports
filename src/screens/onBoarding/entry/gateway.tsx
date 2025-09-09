@@ -1,13 +1,15 @@
 import React, { ReactElement, useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
+
 import { aliasTokens } from '../../../theme/alias';
-import { Logo } from '../../../assets';
+import validateEmail from '../../../utils/validateEmail';
+import type { Gateway as GatewayScreenProps } from '../../../types/navigation';
+
 import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import SocialButton from '../../../components/SocialButton';
 import LegalText from '../../../components/LegalText';
-import validateEmail from '../../../utils/validateEmail';
-import type { Gateway as GatewayScreenProps } from '../../../types/navigation';
+import { LogoImage } from '../../../components/Logo';
 
 /**
  * Gateway screen for authentication entry: email and social sign-in.
@@ -19,7 +21,7 @@ const Gateway = ({ navigation }: GatewayScreenProps): ReactElement => {
     return (
         <View style={styles.screen}>
             <View style={styles.header}>
-                <Image source={Logo} />
+                <LogoImage />
                 <Text style={styles.title}>Welcome to Pipeline!</Text>
                 <Text style={styles.subtitle}>Get started by logging in.</Text>
             </View>
@@ -94,7 +96,7 @@ const styles = StyleSheet.create({
         color: aliasTokens.color.text.Secondary,
         textAlign: 'center',
     },
-    
+
 });
 
 export default Gateway;

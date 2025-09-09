@@ -19,9 +19,9 @@ const FadeSlideIn: React.FC<FadeSlideInProps> = ({
   trigger,
   style,
   initialTranslate = 20,
-  opacityDuration = 350,
-  translateDuration = 400,
-  direction = 'x',
+  opacityDuration = 200,
+  translateDuration = 250,
+  direction = 'y',
 }) => {
   const opacity = useRef(new Animated.Value(0)).current;
   const translate = useRef(new Animated.Value(initialTranslate)).current;

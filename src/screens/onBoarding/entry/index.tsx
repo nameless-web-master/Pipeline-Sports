@@ -1,9 +1,9 @@
 // src/screens/onBoarding/entry/index.tsx
 import React, { ReactElement, useEffect } from 'react';
-import { View, Image } from 'react-native';
+import { View } from 'react-native';
 import { HomeScreenProps } from '../../../types/navigation';
 
-import { HomeLogo } from '../../../assets';
+import { HomeLogo } from '../../../components/Logo';
 import { aliasTokens } from '../../../theme/alias';
 
 // Splash-like onboarding entry that redirects to Entry after a short delay.
@@ -16,7 +16,7 @@ const OnBoardingScreen = ({ navigation }: HomeScreenProps): ReactElement => {
 
     return (
         <View style={styles}>
-            <Image source={HomeLogo} />
+            <HomeLogo />
         </View>
     );
 };
