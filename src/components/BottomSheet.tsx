@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     marginBottom: 36,
   },
   scrollView: {
-    maxHeight: 400,
+    maxHeight: 480,
   },
   title: {
     ...aliasTokens.typography.title.Medium,

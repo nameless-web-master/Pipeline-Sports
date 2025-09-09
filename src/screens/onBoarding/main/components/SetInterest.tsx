@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { aliasTokens } from '../../../../theme/alias';
 import ChipSelectable from '../../../../components/ChipSelectable';
-import Button from '../../../../components/Button';
 import { INTERESTS } from '../../../../strings';
 
 /**
@@ -15,24 +14,34 @@ import { INTERESTS } from '../../../../strings';
  */
 
 interface SetInterestProps {
-    /** Invoked when the user taps Continue. Receives the selected interests. */
-    onNext?: (selected: string[]) => void;
+    /** Currently selected interests */
+    selectedInterests: Set<string>;
+    /** Handler for when interests selection changes */
+    onInterestsChange: (interests: Set<string>) => void;
+    /** Notify parent whether this step is currently valid to proceed. */
+    onValidityChange?: (isValid: boolean) => void;
 }
 
-const SetInterest: React.FC<SetInterestProps> = ({ onNext }) => {
-    // Store selected interests as a Set for O(1) add/remove/lookup
-    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+const SetInterest: React.FC<SetInterestProps> = ({ 
+    selectedInterests, 
+    onInterestsChange, 
+    onValidityChange 
+}) => {
+
+    // Call onValidityChange on first render to set initial validity state
+    useEffect(() => {
+        onValidityChange?.(selectedInterests.size > 0);
+    }, []); // Empty dependency array means this runs only on mount
 
     const toggle = (label: string) => {
-        setSelected(prev => {
-            const draft = new Set(prev);
-            if (draft.has(label)) draft.delete(label); else draft.add(label);
-            return draft;
-        });
-    };
-
-    const handleContinue = () => {
-        onNext?.(Array.from(selected));
+        const draft = new Set(selectedInterests);
+        if (draft.has(label)) {
+            draft.delete(label);
+        } else {
+            draft.add(label);
+        }
+        onInterestsChange(draft);
+        onValidityChange?.(draft.size > 0);
     };
 
     return (
@@ -53,7 +62,7 @@ const SetInterest: React.FC<SetInterestProps> = ({ onNext }) => {
                                 label={label}
                                 variant="outline"
                                 size="medium"
-                                selected={selected.has(label)}
+                                selected={selectedInterests.has(label)}
                                 onPress={() => toggle(label)}
                             />
                         </View>
@@ -61,14 +70,7 @@ const SetInterest: React.FC<SetInterestProps> = ({ onNext }) => {
                 </View>
             </ScrollView>
 
-            {/* Bottom CTA */}
-            <View>
-                <Button
-                    title="Continue"
-                    onPress={handleContinue}
-                    disabled={selected.size === 0}
-                />
-            </View>
+            {/* Bottom CTA is centralized in parent; button removed here. */}
         </View>
     );
 };

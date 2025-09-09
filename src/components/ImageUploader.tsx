@@ -15,14 +15,16 @@ interface ImageUploaderProps {
   onImageSelected?: (uri: string) => void;
   size?: number;
   style?: any;
+  initialImageUri?: string | null;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
   onImageSelected,
   size = 140,
-  style
+  style,
+  initialImageUri
 }) => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(initialImageUri || null);
 
   const requestPermissions = async () => {
     if (Platform.OS !== 'web') {

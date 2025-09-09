@@ -39,4 +39,27 @@ export const ENTRY_SLIDES: Array<{ image: 'Entry' | 'Entry1' | 'Entry2' | 'Entry
     { image: 'Entry3', content: 'Highlight and gain more exposure for your  team' },
 ];
 
+// Location constants used by LocalCommunity screen
+// Extend this list as more states/areas are supported
+export const LOCATION_STATES: Array<{
+    label: string;
+    value: string;
+    areas: Array<{ label: string; value: string }>;
+}> = [
+    {
+        label: 'Louisiana',
+        value: 'la',
+        areas: [
+            { label: 'New Orleans Area', value: 'new_orleans' },
+            { label: 'Baton Rouge', value: 'baton_rouge' },
+            { label: 'Houma & Thibodaux', value: 'houma_thibodaux' },
+            { label: 'Lafayette', value: 'lafayette' },
+            { label: 'Lake Charles', value: 'lake_charles' },
+            { label: 'Shreveport & Bossier City', value: 'shreveport_bossier' },
+            { label: 'Alexandria', value: 'alexandria' },
+            { label: 'Monroe', value: 'monroe' },
+        ],
+    },
+];
+
 export { StaticContent }

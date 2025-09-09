@@ -5,7 +5,6 @@ import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import Input from '../../../../components/Input';
 import Dropdown from '../../../../components/Dropdown';
 import BottomSheet from '../../../../components/BottomSheet';
-import Button from '../../../../components/Button';
 import DobBottomSheet from '../../../../components/DobBottomSheet';
 
 // Theme Tokens
@@ -22,16 +21,44 @@ const formatDate = (y?: number, m?: number, d?: number) => {
     return `${mm}/${dd}/${y}`;
 };
 
-const SetProfile: React.FC = () => {
-    // Basic input states
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [role, setRole] = useState<string | undefined>(undefined);
+interface SetProfileProps {
+    /** Current first name value */
+    firstName: string;
+    /** Current last name value */
+    lastName: string;
+    /** Current role selection */
+    role: string | undefined;
+    /** Current date of birth year */
+    dobYear: number | undefined;
+    /** Current date of birth month */
+    dobMonth: number | undefined;
+    /** Current date of birth day */
+    dobDay: number | undefined;
+    /** Handler for first name changes */
+    onFirstNameChange: (value: string) => void;
+    /** Handler for last name changes */
+    onLastNameChange: (value: string) => void;
+    /** Handler for role changes */
+    onRoleChange: (value: string) => void;
+    /** Handler for date of birth changes */
+    onDobChange: (year: number, month: number, day: number) => void;
+    /** Notify parent whether this step is currently valid to proceed. */
+    onValidityChange?: (isValid: boolean) => void;
+}
 
-    // Date of birth states
-    const [dobYear, setDobYear] = useState<number | undefined>(undefined);
-    const [dobMonth, setDobMonth] = useState<number | undefined>(undefined); // 1 to 12
-    const [dobDay, setDobDay] = useState<number | undefined>(undefined);
+const SetProfile: React.FC<SetProfileProps> = ({ 
+    firstName,
+    lastName,
+    role,
+    dobYear,
+    dobMonth,
+    dobDay,
+    onFirstNameChange,
+    onLastNameChange,
+    onRoleChange,
+    onDobChange,
+    onValidityChange 
+}) => {
 
     // Bottom sheet visibility
     const [isRoleSheetVisible, setRoleSheetVisible] = useState(false);
@@ -45,6 +72,11 @@ const SetProfile: React.FC = () => {
     // Simple form validation
     const isFormValid = firstName.trim() && lastName.trim() && role && selectedDobText;
 
+    // Inform parent about validity changes whenever form data changes
+    React.useEffect(() => {
+        onValidityChange?.(Boolean(isFormValid));
+    }, [firstName, lastName, role, dobYear, dobMonth, dobDay, onValidityChange]);
+
     const dateNow = new Date();
 
     return (
@@ -56,7 +88,7 @@ const SetProfile: React.FC = () => {
                     <Input
                         label="First Name"
                         value={firstName}
-                        onChangeText={setFirstName}
+                        onChangeText={onFirstNameChange}
                         autoCapitalize="words"
                         returnKeyType="next"
                         placeholder=""
@@ -68,7 +100,7 @@ const SetProfile: React.FC = () => {
                     <Input
                         label="Last Name"
                         value={lastName}
-                        onChangeText={setLastName}
+                        onChangeText={onLastNameChange}
                         autoCapitalize="words"
                         returnKeyType="done"
                         placeholder=""
@@ -82,7 +114,7 @@ const SetProfile: React.FC = () => {
                         placeholder="Select"
                         value={role}
                         options={ROLE_OPTIONS}
-                        onSelect={setRole}
+                        onSelect={onRoleChange}
                         onOpenBottomSheet={() => setRoleSheetVisible(true)}
                     />
 
@@ -101,14 +133,7 @@ const SetProfile: React.FC = () => {
                     </TouchableOpacity>
                 </View>
 
-                {/* Submit Button */}
-                <Button
-                    title="Continue"
-                    onPress={() => {
-                        // TODO: Submit logic here
-                    }}
-                    disabled={!isFormValid}
-                />
+                {/* Submit Button moved to parent; centralized CTA */}
             </View>
 
             {/* Role Bottom Sheet */}
@@ -116,7 +141,10 @@ const SetProfile: React.FC = () => {
                 visible={isRoleSheetVisible}
                 title=""
                 options={ROLE_OPTIONS}
-                onSelect={(value: string) => setRole(value)}
+                onSelect={(value: string) => {
+                    onRoleChange(value);
+                    setRoleSheetVisible(false);
+                }}
                 onClose={() => setRoleSheetVisible(false)}
                 optionAlignment="left"
             />
@@ -131,9 +159,7 @@ const SetProfile: React.FC = () => {
                 }}
                 onClose={() => setDobSheetVisible(false)}
                 onSave={(v) => {
-                    setDobYear(v.year);
-                    setDobMonth(v.month);
-                    setDobDay(v.day);
+                    onDobChange(v.year, v.month, v.day);
                     setDobSheetVisible(false);
                 }}
             />
