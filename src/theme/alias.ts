@@ -188,6 +188,9 @@ export const aliasTokens = {
       },
     },
     title: {
+      XLarge: {
+        ...designTokens.typography.title.XLarge,
+      },
       Large: {
         ...designTokens.typography.title.Large,
       },

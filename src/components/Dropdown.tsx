@@ -59,12 +59,12 @@ const Dropdown: React.FC<DropdownProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    marginBottom: aliasTokens.spacing.Small,
+    // marginBottom: aliasTokens.spacing.Small,
   },
   label: {
-    ...aliasTokens.typography.labelText.Medium,
+    ...aliasTokens.typography.labelText.Default,
     color: aliasTokens.color.text.Primary,
-    marginBottom: aliasTokens.spacing.XXSmall,
+    marginBottom: aliasTokens.spacing.XSmall,
   },
   dropdown: {
     height: aliasTokens.sizes.Medium,

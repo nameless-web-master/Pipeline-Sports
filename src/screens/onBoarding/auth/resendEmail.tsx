@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
-import { View, Text, StyleSheet, Linking } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, Linking, Image } from 'react-native';
 import Button from '../../../components/Button';
 import { aliasTokens } from '../../../theme/alias';
 import { ResendEmailScreen as ResendEmailType } from '../../../types/navigation';
+import { ImagesAssets } from '../../../assets';
 
 /**
  * Email verification prompt screen
@@ -30,6 +30,8 @@ const ResendEmailScreen = ({ navigation, route }: ResendEmailType): ReactElement
     const handleResend = () => {
         // TODO: Integrate with API to trigger resend verification email
         // Keep the UI behavior minimal for now
+
+        navigation.navigate('OnBoardingMain');
     };
 
     return (
@@ -37,7 +39,7 @@ const ResendEmailScreen = ({ navigation, route }: ResendEmailType): ReactElement
             <View style={styles.content}>
                 {/* Visual icon for email context */}
                 <View style={styles.iconWrapper}>
-                    <MaterialIcons name="mail-outline" size={40} color={aliasTokens.color.text.Secondary} />
+                    <Image source={{ uri: ImagesAssets('Email') }} width={40} height={40} />
                 </View>
 
                 {/* Main instruction text */}
@@ -67,32 +69,31 @@ const styles = StyleSheet.create({
         backgroundColor: aliasTokens.color.background.Primary,
         paddingHorizontal: aliasTokens.spacing.Large,
     },
-    
+
     // Centered content container
     content: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    
+
     // Icon container with circular background
     iconWrapper: {
+        ...aliasTokens.basic.dFlexCenter,
         width: 100,
         height: 100,
         borderRadius: 50,
         backgroundColor: aliasTokens.color.background.Secondary,
-        alignItems: 'center',
-        justifyContent: 'center',
         marginBottom: aliasTokens.spacing.Medium,
     },
-    
+
     // Main title styling
     title: {
         ...aliasTokens.typography.title.Mini,
         color: aliasTokens.color.text.Primary,
         textAlign: 'center',
     },
-    
+
     // Subtitle with instruction text
     subtitle: {
         ...aliasTokens.typography.body.Small,
@@ -101,12 +102,12 @@ const styles = StyleSheet.create({
         marginTop: aliasTokens.spacing.XSmall,
         // marginHorizontal: aliasTokens.spacing.XLarge,
     },
-    
+
     // Tappable email link styling
     emailLink: {
         color: aliasTokens.color.brand.Primary,
     },
-    
+
     // Call-to-action button styling
     cta: {
         width: '100%',

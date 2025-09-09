@@ -10,6 +10,7 @@ import { EntryMain } from '../screens/onBoarding/entry/main';
 import Gateway from '../screens/onBoarding/entry/gateway';
 import SignupWithEmailScreen from '../screens/onBoarding/auth/signUp';
 import ResendEmailScreen from '../screens/onBoarding/auth/resendEmail';
+import { OnBoardingMain } from '../screens/onBoarding/main';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -22,6 +23,7 @@ const Navigation = (): ReactElement => {
         <Stack.Screen name="Gateway" component={Gateway} />
         <Stack.Screen name="SignupWithEmailScreen" component={SignupWithEmailScreen} />
         <Stack.Screen name="ResendEmailScreen" component={ResendEmailScreen} />
+        <Stack.Screen name="OnBoardingMain" component={OnBoardingMain} />
       </Stack.Navigator>
     </NavigationContainer>
   );

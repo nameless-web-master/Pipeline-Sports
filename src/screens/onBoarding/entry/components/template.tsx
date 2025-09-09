@@ -3,7 +3,7 @@ import { Image, Text, View, StyleSheet } from "react-native";
 
 import { ImagesAssets } from "../../../../assets";
 import { aliasTokens } from "../../../../theme/alias";
-import { StaticContent } from "../../../../strings";
+import { StaticContent, ENTRY_SLIDES } from "../../../../strings";
 import { entryMain } from "../../../../types/navigation";
 
 import Dots from "../../../../components/dots";
@@ -16,24 +16,7 @@ import { LogoImage } from "../../../../components/Logo";
  * Static configuration for onboarding slides
  * Each slide contains an image reference and corresponding content text
  */
-const EntryList: Array<{ image: 'Entry' | 'Entry1' | 'Entry2' | 'Entry3'; content: string }> = [
-    {
-        image: 'Entry',
-        content: StaticContent.Entry[0]
-    },
-    {
-        image: 'Entry1',
-        content: StaticContent.Entry[1]
-    },
-    {
-        image: 'Entry2',
-        content: StaticContent.Entry[2]
-    },
-    {
-        image: 'Entry3',
-        content: StaticContent.Entry[3]
-    },
-];
+const EntryList = ENTRY_SLIDES;
 
 /**
  * Props interface for the EntryTemplate component

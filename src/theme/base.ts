@@ -123,10 +123,15 @@ export const designTokens = {
       },
     },
     title: {
-      Large: {
+      XLarge: {
         fontFamily: 'Poppins_600SemiBold',
         fontSize: 24,
         lineHeight: 30,
+      },
+      Large: {
+        fontFamily: 'Poppins_600SemiBold',
+        fontSize: 22,
+        lineHeight: 32,
       },
       Medium: {
         fontFamily: 'Poppins_600SemiBold',

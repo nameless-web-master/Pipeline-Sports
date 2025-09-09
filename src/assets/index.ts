@@ -8,7 +8,8 @@ const imageURL = {
     Entry: 'onboarding/entry-screen-1.png',
     Entry1: 'onboarding/entry-screen-2.png',
     Entry2: 'onboarding/entry-screen-3.png',
-    Entry3: 'onboarding/entry-screen-4.png'
+    Entry3: 'onboarding/entry-screen-4.png',
+    Email: 'Icons/mail.png'
 } as const;
 
 type ImageKey = keyof typeof imageURL;

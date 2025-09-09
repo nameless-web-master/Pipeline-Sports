@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { aliasTokens } from 'src/theme/alias';
+import { Check } from 'lucide-react-native';
+import { aliasTokens } from '../theme/alias';
 
 interface ChipSelectableProps {
   label: string;
@@ -45,7 +46,17 @@ const ChipSelectable: React.FC<ChipSelectableProps> = ({
 
   return (
     <ChipWrapper style={getChipStyle()} onPress={onPress}>
-      <Text style={getTextStyle()}>{label}</Text>
+      <View style={styles.contentRow}>
+        {selected && (
+          <Check
+            size={20}
+            color={aliasTokens.color.text.InversePrimary}
+            strokeWidth={2}
+            style={styles.leadingIcon}
+          />
+        )}
+        <Text style={getTextStyle()}>{label}</Text>
+      </View>
     </ChipWrapper>
   );
 };
@@ -58,7 +69,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-start',
   },
-  
+
   // Size variations
   chipMedium: {
     height: 32,
@@ -70,7 +81,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 0,
   },
-  
+
   // Primary variant styles
   chipPrimaryUnselected: {
     backgroundColor: aliasTokens.color.background.Tertiary,
@@ -82,7 +93,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: aliasTokens.color.brand.Primary, // blue.500
   },
-  
+
   // Outline variant styles
   chipOutlineUnselected: {
     backgroundColor: aliasTokens.color.background.Primary,
@@ -94,14 +105,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: aliasTokens.color.brand.Primary, // blue.500 border
   },
-  
+
   // Text styles
   chipText: {
     textAlign: 'center',
     includeFontPadding: false,
   },
   chipTextMedium: {
-    ...aliasTokens.typography.body.Small,
+    ...aliasTokens.typography.labelText.Default,
   },
   chipTextSmall: {
     ...aliasTokens.typography.body.XSmall,
@@ -111,6 +122,14 @@ const styles = StyleSheet.create({
   },
   chipTextSelected: {
     color: aliasTokens.color.text.InversePrimary, // text.inverse primary
+  },
+  contentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  leadingIcon: {
+    marginRight: aliasTokens.spacing.XXSmall,
+    marginLeft: -8
   },
 });
 

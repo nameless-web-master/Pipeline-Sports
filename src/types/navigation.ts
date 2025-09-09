@@ -9,6 +9,7 @@ export type RootStackParamList = {
   Gateway: undefined;
   SignupWithEmailScreen: { email?: string } | undefined;
   ResendEmailScreen: { email?: string } | undefined;
+  OnBoardingMain: undefined;
 };
 
 // Generic screen props type (includes navigation and route)
@@ -23,3 +24,4 @@ export type entryMain = ScreenProps<'Entry'>;
 export type Gateway = ScreenProps<'Gateway'>;
 export type SignupWithEmailScreen = ScreenProps<'SignupWithEmailScreen'>;
 export type ResendEmailScreen = ScreenProps<'ResendEmailScreen'>;
+export type OnBoardingMain = ScreenProps<'OnBoardingMain'>;

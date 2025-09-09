@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  TouchableOpacity, 
-  Image, 
-  StyleSheet, 
+import {
+  View,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
   Alert,
-  Platform 
+  Platform
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Plus, User } from 'lucide-react-native';
@@ -17,10 +17,10 @@ interface ImageUploaderProps {
   style?: any;
 }
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({ 
-  onImageSelected, 
+const ImageUploader: React.FC<ImageUploaderProps> = ({
+  onImageSelected,
   size = 140,
-  style 
+  style
 }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -30,17 +30,19 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       try {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         console.log('ImageUploader: Media library permission status:', status);
-        
+
         if (status !== 'granted') {
           Alert.alert(
-            'Permission needed', 
+            'Permission needed',
             'Please grant camera roll permissions to upload photos.',
             [
               { text: 'Cancel', style: 'cancel' },
-              { text: 'Settings', onPress: () => {
-                // On iOS, this will prompt user to go to Settings
-                Alert.alert('Permission Required', 'Please go to Settings > Privacy > Photos and enable access for this app.');
-              }}
+              {
+                text: 'Settings', onPress: () => {
+                  // On iOS, this will prompt user to go to Settings
+                  Alert.alert('Permission Required', 'Please go to Settings > Privacy > Photos and enable access for this app.');
+                }
+              }
             ]
           );
           return false;
@@ -92,16 +94,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       console.log('ImageUploader: Camera permission status:', status);
-      
+
       if (status !== 'granted') {
         Alert.alert(
-          'Permission needed', 
+          'Permission needed',
           'Please grant camera permissions to take photos.',
           [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Settings', onPress: () => {
-              Alert.alert('Permission Required', 'Please go to Settings > Privacy > Camera and enable access for this app.');
-            }}
+            {
+              text: 'Settings', onPress: () => {
+                Alert.alert('Permission Required', 'Please go to Settings > Privacy > Camera and enable access for this app.');
+              }
+            }
           ]
         );
         return;
@@ -136,7 +140,19 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       }
     } catch (error) {
       console.error('ImageUploader: Error taking photo:', error);
-      Alert.alert('Error', 'Failed to take photo. Please try again.');
+      // Defensive fallback for Android emulators or devices without camera app
+      Alert.alert(
+        'Camera unavailable',
+        'Opening your photo library instead.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              pickImage();
+            }
+          }
+        ]
+      );
     }
   };
 
@@ -153,7 +169,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   };
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[
         styles.container,
         { width: size, height: size },
@@ -161,26 +177,21 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       ]}
       onPress={showImageOptions}
     >
-      {selectedImage ? (
-        <Image 
-          source={{ uri: selectedImage }} 
+      {selectedImage && (
+        <Image
+          source={{ uri: selectedImage }}
           style={styles.image}
         />
-      ) : (
-        <View style={styles.placeholder}>
-          <User 
-            size={size * 0.3} 
-            color={aliasTokens.color.text.Tertiary}
+      )}
+
+      {/* Add Photo Button */}
+      <View style={styles.addButtonContainer}>
+        <View style={styles.addButton}>
+          <Plus
+            size={20}
+            color={aliasTokens.color.text.InversePrimary}
           />
         </View>
-      )}
-      
-      {/* Add Photo Button */}
-      <View style={styles.addButton}>
-        <Plus 
-          size={24} 
-          color={aliasTokens.color.text.InversePrimary}
-        />
       </View>
     </TouchableOpacity>
   );
@@ -188,33 +199,35 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
+    ...aliasTokens.basic.dFlexCenter,
     backgroundColor: aliasTokens.color.background.Secondary,
-    borderRadius: 500, // Circular
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderRadius: aliasTokens.borderRadius.Full, // Circular    
     position: 'relative',
   },
   image: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 500,
+    ...aliasTokens.sizes.allFullSize,
+    borderRadius: aliasTokens.borderRadius.Full,
   },
   placeholder: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    ...aliasTokens.basic.dFlexCenter,
   },
-  addButton: {
+  addButtonContainer: {
+    ...aliasTokens.basic.dFlexCenter,
+    width: aliasTokens.sizes.Medium,
+    height: aliasTokens.sizes.Medium,
     position: 'absolute',
     bottom: 0,
     right: 0,
+    backgroundColor: aliasTokens.color.background.Primary,
+    borderRadius: aliasTokens.borderRadius.Full,
+  },
+  addButton: {
     width: aliasTokens.sizes.Small,
     height: aliasTokens.sizes.Small,
     backgroundColor: aliasTokens.color.brand.Primary,
-    borderRadius: 500,
+    borderRadius: aliasTokens.borderRadius.Full,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,
-    borderColor: aliasTokens.color.background.Primary,
   },
 });
 

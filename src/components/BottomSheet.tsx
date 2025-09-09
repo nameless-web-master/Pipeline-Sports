@@ -13,6 +13,8 @@ interface BottomSheetProps {
   options: BottomSheetOption[];
   onSelect: (value: string) => void;
   onClose: () => void;
+  /** Alignment for options list items and text (default: 'center') */
+  optionAlignment?: 'left' | 'center';
 }
 
 const BottomSheet: React.FC<BottomSheetProps> = ({
@@ -21,6 +23,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   options,
   onSelect,
   onClose,
+  optionAlignment = 'center',
 }) => {
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -56,8 +59,6 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     });
   };
 
-
-
   return (
     <Modal
       visible={visible}
@@ -66,12 +67,12 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
       onRequestClose={handleClose}
     >
       <View style={styles.modalOverlay}>
-        <TouchableOpacity 
-          style={styles.modalBackdrop} 
+        <TouchableOpacity
+          style={styles.modalBackdrop}
           activeOpacity={1}
           onPress={handleClose}
         />
-        <Animated.View 
+        <Animated.View
           style={[
             styles.bottomSheet,
             {
@@ -86,24 +87,29 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         >
           {/* Handle */}
           <View style={styles.handleBar} />
-          
+
           {/* Content */}
-          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-            <View style={styles.content}>
+          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            <View>
               {title && (
                 <Text style={styles.title}>{title}</Text>
               )}
-              
-              {options.map((option, index) => (
-                <TouchableOpacity
-                  key={option.value}
-                  style={styles.option}
-                  onPress={() => handleOptionPress(option)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.optionText}>{option.label}</Text>
-                </TouchableOpacity>
-              ))}
+
+              <View style={{ gap: aliasTokens.spacing.Small }}>
+                {options.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={styles.option}
+                    onPress={() => handleOptionPress(option)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[
+                      styles.optionText,
+                      optionAlignment === 'left' && styles.optionTextLeft,
+                    ]}>{option.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
           </ScrollView>
         </Animated.View>
@@ -120,29 +126,29 @@ const styles = StyleSheet.create({
   },
   modalBackdrop: {
     flex: 1,
+    zIndex: 1,
   },
   bottomSheet: {
     backgroundColor: aliasTokens.color.background.Primary,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
-    paddingHorizontal: 20,
-    paddingBottom: 30,
+    paddingHorizontal: aliasTokens.spacing.Medium,
+    paddingBottom: aliasTokens.spacing.XLarge,
     maxHeight: '85%',
+    zIndex: 2,
+    elevation: 8,
   },
   handleBar: {
     width: 52,
     height: 4,
-    backgroundColor: aliasTokens.color.border.Default,
-    borderRadius: 2,
+    backgroundColor: aliasTokens.color.background.Tertiary,
+    borderRadius: 5,
     alignSelf: 'center',
-    marginTop: 8,
-    marginBottom: 20,
+    marginTop: aliasTokens.spacing.XXSmall,
+    marginBottom: 36,
   },
   scrollView: {
-    maxHeight: 460,
-  },
-  content: {
-    paddingBottom: aliasTokens.spacing.Large,
+    maxHeight: 400,
   },
   title: {
     ...aliasTokens.typography.title.Medium,
@@ -151,15 +157,17 @@ const styles = StyleSheet.create({
     marginBottom: aliasTokens.spacing.Medium,
   },
   option: {
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 2,
+    ...aliasTokens.basic.dFlexCenter,
+    height: aliasTokens.sizes.Small,
   },
   optionText: {
     ...aliasTokens.typography.body.Large,
     color: aliasTokens.color.text.Primary,
     textAlign: 'center',
+    width: aliasTokens.sizes.full,
+  },
+  optionTextLeft: {
+    textAlign: 'left',
   },
 });
 

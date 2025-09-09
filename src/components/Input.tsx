@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   label: {
     ...aliasTokens.typography.labelText.Default,
     color: aliasTokens.color.text.Primary,
-    marginBottom: aliasTokens.spacing.XXSmall,
+    marginBottom: aliasTokens.spacing.XSmall,
   },
   inputContainer: {
     borderWidth: aliasTokens.borderWidth.Default,
