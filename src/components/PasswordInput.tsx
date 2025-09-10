@@ -107,6 +107,7 @@ const styles = StyleSheet.create({
     backgroundColor: aliasTokens.input.FillEnabled,
     flexDirection: 'row',
     alignItems: 'center',
+    paddingLeft:12
   },
   input: {
     flex: 1,

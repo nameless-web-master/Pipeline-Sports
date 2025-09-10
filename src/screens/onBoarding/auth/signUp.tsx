@@ -27,6 +27,8 @@ const PasswordRule = memo(({ met, label }: { met: boolean; label: string }) => {
         size={18}
         color={met ? aliasTokens.color.semantic.success.Default : aliasTokens.color.text.Tertiary}
         style={{ marginRight: aliasTokens.spacing.XSmall }}
+        
+        
       />
       <Text style={[styles.ruleText, met ? styles.ruleTextMet : styles.ruleTextUnmet]}>{label}</Text>
     </View>
@@ -64,7 +66,7 @@ const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
   const handleSignup = useCallback(() => {
     // TODO: Hook up to actual signup API when available
     // For now, navigate to email verification screen
-    navigation.navigate('ResendEmailScreen', { email });
+    navigation.navigate('ResendEmailScreen', { email, content: 'signup' });
   }, [navigation, email]);
 
   return (
@@ -122,7 +124,7 @@ const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
 
 // Component styles using design system tokens
 const styles = StyleSheet.create({
- 
+
   // Header and navigation styles
   backButton: {
     alignSelf: 'flex-start',
@@ -132,7 +134,7 @@ const styles = StyleSheet.create({
     color: aliasTokens.color.text.Primary,
     marginTop: aliasTokens.spacing.Large,
   },
-  
+
   // Spacing utilities
   spacerSmall: {
     height: aliasTokens.spacing.Large,
@@ -143,7 +145,7 @@ const styles = StyleSheet.create({
   spacerLarge: {
     height: aliasTokens.spacing.Medium,
   },
-  
+
   // Password validation rules styles
   rulesHeader: {
     ...aliasTokens.typography.labelText.Small,
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: aliasTokens.spacing.XXSmall,
   },
-  
+
   // Unused rule icon styles (kept for potential future use)
   ruleIcon: {
     width: 16,
@@ -172,7 +174,7 @@ const styles = StyleSheet.create({
     backgroundColor: aliasTokens.color.background.Primary,
     borderColor: aliasTokens.color.border.Light,
   },
-  
+
   // Rule text styles
   ruleText: {
     ...aliasTokens.typography.body.XSmall,
@@ -184,7 +186,7 @@ const styles = StyleSheet.create({
   ruleTextUnmet: {
     color: aliasTokens.color.text.Secondary,
   },
-  
+
   // Call-to-action button styles
   cta: {
     marginTop: aliasTokens.spacing.Small,

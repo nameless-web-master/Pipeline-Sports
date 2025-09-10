@@ -1,38 +1,49 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { View, Text, StyleSheet, Linking } from 'react-native';
 import Button from '../../../components/Button';
 import CircleIcon from '../../../components/CircleIcon';
 import { aliasTokens } from '../../../theme/alias';
-import { ResendEmailScreen as ResendEmailType } from '../../../types/navigation';
+import { ResendEmailScreen as ResendEmailType, RootStackParamList } from '../../../types/navigation';
 import { ImagesAssets } from '../../../assets';
 
 /**
  * Email verification prompt screen
  * 
- * Displays after user signup to guide them through email verification:
- * - Visual envelope icon for clear context
- * - Displays the email address (tappable to open mail client)
- * - Provides resend verification email functionality
- * - Clean, centered layout with clear messaging
- * 
- * @param props - Navigation and route props containing email parameter
- * @returns JSX element representing the email verification screen
+ * Appears after signup/reset to guide users through verifying their email.
+ * - Shows a clear envelope icon
+ * - Displays the email (tappable to open the mail client)
+ * - Offers a minimal "Resend Email" action (navigation-only stub)
  */
 const ResendEmailScreen = ({ navigation, route }: ResendEmailType): ReactElement => {
-    // Extract email from route params or use placeholder
+    // Prefer the provided email, fall back to a generic placeholder
     const email = route?.params?.email ?? 'you@example.com';
 
-    // Event handlers for user interactions
+    // Narrow expected content values for safer branching
+    const content = (route?.params?.content as 'signup' | 'reset' | undefined) ?? undefined;
+
+    // Opens the default mail client with the target email
     const handleOpenMail = () => {
-        // Attempt to open the default mail client with the selected email
         Linking.openURL(`mailto:${email}`).catch(() => { /* no-op */ });
     };
 
-    const handleResend = () => {
-        // TODO: Integrate with API to trigger resend verification email
-        // Keep the UI behavior minimal for now
+    // Decide next route based on entry context
+    const nextRoute: keyof RootStackParamList | undefined = useMemo(() => {
+        switch (content) {
+            case 'signup':
+                return 'OnBoardingMain';
+            case 'reset':
+                // Note: matches current route name in types (intentional spelling)
+                return 'ResetPassowrd';
+            default:
+                return undefined;
+        }
+    }, [content]);
 
-        navigation.navigate('OnBoardingMain');
+    const handleResend = () => {
+        // TODO: Wire to API to trigger resend; currently navigates forward only
+        if (nextRoute) {
+            navigation.navigate(nextRoute);
+        }
     };
 
     return (

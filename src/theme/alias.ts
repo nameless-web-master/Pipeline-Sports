@@ -76,6 +76,7 @@ export const aliasTokens = {
     semantic: {
       success: {
         Light: designTokens.colors.green[50],
+        Special: designTokens.colors.green[400],
         Default: designTokens.colors.green[700],
       },
       danger: {
