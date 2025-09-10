@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
-import { View, Text, StyleSheet, Linking, Image } from 'react-native';
+import { View, Text, StyleSheet, Linking } from 'react-native';
 import Button from '../../../components/Button';
+import CircleIcon from '../../../components/CircleIcon';
 import { aliasTokens } from '../../../theme/alias';
 import { ResendEmailScreen as ResendEmailType } from '../../../types/navigation';
 import { ImagesAssets } from '../../../assets';
@@ -38,9 +39,10 @@ const ResendEmailScreen = ({ navigation, route }: ResendEmailType): ReactElement
         <View style={styles.screen}>
             <View style={styles.content}>
                 {/* Visual icon for email context */}
-                <View style={styles.iconWrapper}>
-                    <Image source={{ uri: ImagesAssets('Email') }} width={40} height={40} />
-                </View>
+                <CircleIcon
+                    source={{ uri: ImagesAssets('Email') }}
+                    containerStyle={styles.iconWrapper}
+                />
 
                 {/* Main instruction text */}
                 <Text style={styles.title}>Check your email</Text>
@@ -77,13 +79,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
 
-    // Icon container with circular background
+    // Icon container styling (now handled by CircleIcon component)
     iconWrapper: {
-        ...aliasTokens.basic.dFlexCenter,
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: aliasTokens.color.background.Secondary,
         marginBottom: aliasTokens.spacing.Medium,
     },
 

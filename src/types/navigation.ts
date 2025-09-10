@@ -10,6 +10,8 @@ export type RootStackParamList = {
   SignupWithEmailScreen: { email?: string } | undefined;
   ResendEmailScreen: { email?: string } | undefined;
   OnBoardingMain: undefined;
+  CommunityCommitmentScreen: undefined;
+  NotificationScreen: undefined;
 };
 
 // Generic screen props type (includes navigation and route)
@@ -25,3 +27,5 @@ export type Gateway = ScreenProps<'Gateway'>;
 export type SignupWithEmailScreen = ScreenProps<'SignupWithEmailScreen'>;
 export type ResendEmailScreen = ScreenProps<'ResendEmailScreen'>;
 export type OnBoardingMain = ScreenProps<'OnBoardingMain'>;
+export type CommunityCommitmentScreen = ScreenProps<'CommunityCommitmentScreen'>;
+export type NotificationScreen = ScreenProps<'NotificationScreen'>;

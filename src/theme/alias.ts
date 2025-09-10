@@ -283,6 +283,20 @@ export const aliasTokens = {
   },
 
   // =============================================================================
+  // Container Stylesheet
+  // =============================================================================
+
+  container: {
+    bodyPadding: {
+      flex: 1,
+      backgroundColor: designTokens.colors.white,
+      paddingTop: designTokens.spacing[52],
+      paddingHorizontal: designTokens.spacing[32],
+      paddingBottom: designTokens.spacing[20],
+    }
+  },
+
+  // =============================================================================
   // Basic Stylesheet
   // =============================================================================
 

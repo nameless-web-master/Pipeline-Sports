@@ -94,7 +94,7 @@ export const OnBoardingMain = ({ navigation }: OnBoardingMainProps) => {
 
         // Navigate to main app or home screen
         // You can replace 'Home' with the appropriate screen name for your main app
-        navigation.navigate('Home');
+        navigation.navigate('CommunityCommitmentScreen');
     };
 
     // Navigate back safely; never below step 1.
@@ -190,7 +190,7 @@ export const OnBoardingMain = ({ navigation }: OnBoardingMainProps) => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={aliasTokens.container.bodyPadding}>
             <Header onBackPress={handleBack} progress={step} />
             {renderCurrentStep()}
 
@@ -207,13 +207,6 @@ export const OnBoardingMain = ({ navigation }: OnBoardingMainProps) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: aliasTokens.color.background.Primary,
-        paddingTop: aliasTokens.spacing.XLarge,
-        paddingHorizontal: aliasTokens.spacing.Large,
-        paddingBottom: aliasTokens.spacing.Medium,
-    },
     ctaContainer: {
         marginTop: aliasTokens.spacing.Medium,
     }

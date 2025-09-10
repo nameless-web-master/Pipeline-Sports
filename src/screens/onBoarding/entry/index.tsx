@@ -39,8 +39,7 @@ const OnBoardingScreen = ({ navigation }: HomeScreenProps): ReactElement => {
 // Full-screen centered container styles using design system tokens
 const styles = {
     ...aliasTokens.basic.dFlexCenter,
-    width: aliasTokens.sizes.full,
-    height: aliasTokens.sizes.full,
+    ...aliasTokens.sizes.allFullSize,
     backgroundColor: aliasTokens.color.background.Home,
 }
 

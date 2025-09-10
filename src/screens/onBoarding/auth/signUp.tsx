@@ -68,8 +68,8 @@ const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
   }, [navigation, email]);
 
   return (
-    <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+    <View style={aliasTokens.container.bodyPadding}>
+      <ScrollView keyboardShouldPersistTaps="handled">
         {/* Navigation header */}
         <BackButton onPress={handleBack} style={styles.backButton} />
         <Text style={styles.title}>Signup with email</Text>
@@ -122,16 +122,7 @@ const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
 
 // Component styles using design system tokens
 const styles = StyleSheet.create({
-  // Main container styles
-  screen: {
-    flex: 1,
-    backgroundColor: aliasTokens.color.background.Primary,
-  },
-  container: {
-    paddingHorizontal: aliasTokens.spacing.Large,
-    paddingTop: aliasTokens.spacing.XLarge,
-  },
-  
+ 
   // Header and navigation styles
   backButton: {
     alignSelf: 'flex-start',
@@ -169,7 +160,7 @@ const styles = StyleSheet.create({
   ruleIcon: {
     width: 16,
     height: 16,
-    borderRadius: 8,
+    borderRadius: aliasTokens.borderRadius.Small,
     marginRight: aliasTokens.spacing.XSmall,
     borderWidth: 2,
   },

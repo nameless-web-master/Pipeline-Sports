@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, ImageStyle } from "react-native";
+import { Image, ImageStyle, StyleProp, ViewStyle } from "react-native";
 import { ImagesAssets } from "../assets";
 
 /**
@@ -8,11 +8,16 @@ import { ImagesAssets } from "../assets";
  * 
  * @returns JSX.Element - Small logo image component
  */
-export const LogoImage = (): React.JSX.Element => (
+
+interface LogoImageProps {
+    style?: StyleProp<ImageStyle>
+}
+
+export const LogoImage: React.FC<LogoImageProps> = ({ style }): React.JSX.Element => (
     <Image
         source={{ uri: ImagesAssets('Logo') }}
         accessibilityLabel="Pipeline logo"
-        style={{ width: 32, height: 32 }}
+        style={style ? style : { width: 32, height: 32 }}
         resizeMode="contain"
     />
 );

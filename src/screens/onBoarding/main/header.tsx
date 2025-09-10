@@ -76,12 +76,12 @@ const Header: React.FC<HeaderProps> = ({
   backButtonVariant = 'outline',
 }) => {
   return (
-    <View style={[styles.container, style]}>
+    <View style={style}>
       {/* Top Row: Back Button + Progress Bar + Spacer */}
       <View style={styles.topRow}>
         {/* Conditional Back Button - Only show if not on first step */}
         {progress > 1 ? (
-          <View style={styles.backButtonContainer}>
+          <View>
             <BackButton
               onPress={onBackPress}
               variant={backButtonVariant}
@@ -124,19 +124,11 @@ const Header: React.FC<HeaderProps> = ({
 
 const styles = StyleSheet.create({
   // Main container for the header component
-  container: {
-    // No default padding - handled by parent components
-  },
 
   // Top row containing back button, progress bar, and spacer
   topRow: {
     ...aliasTokens.basic.dFlexBetween,
     gap: aliasTokens.spacing.Small,
-  },
-
-  // Container for the back button to maintain consistent spacing
-  backButtonContainer: {
-    // No additional styling needed - BackButton handles its own styling
   },
 
   // Container for the progress bar - takes remaining space

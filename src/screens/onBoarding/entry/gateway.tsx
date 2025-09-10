@@ -26,12 +26,17 @@ import { LogoImage } from '../../../components/Logo';
 const Gateway = ({ navigation }: GatewayScreenProps): ReactElement => {
     // Form state management
     const [email, setEmail] = useState<string>('daniel.martinez1995@gmail.com');
-    
+
     // Email validation state
     const isEmailValid = validateEmail(email);
 
     return (
-        <View style={styles.screen}>
+        <View style={[
+            aliasTokens.container.bodyPadding,
+            {
+                paddingTop: aliasTokens.spacing.MaxLarge
+            }
+        ]}>
             {/* Header section with logo and welcome text */}
             <View style={styles.header}>
                 <LogoImage />
@@ -51,7 +56,7 @@ const Gateway = ({ navigation }: GatewayScreenProps): ReactElement => {
                     autoCapitalize="none"
                     autoCorrect={false}
                 />
-                
+
                 {/* Primary email authentication button */}
                 <Button
                     title="Continue with Email"
@@ -87,20 +92,12 @@ const Gateway = ({ navigation }: GatewayScreenProps): ReactElement => {
 };
 // Component styles using design system tokens
 const styles = StyleSheet.create({
-    // Main screen container
-    screen: {
-        flex: 1,
-        backgroundColor: aliasTokens.color.background.Primary,
-        paddingHorizontal: aliasTokens.spacing.Large,
-        paddingTop: aliasTokens.spacing.MaxLarge,
-    },
-    
     // Header section with centered content
     header: {
         alignItems: 'center',
         marginBottom: aliasTokens.spacing.XLarge,
     },
-    
+
     // Main title styling
     title: {
         ...aliasTokens.typography.display.Small,
@@ -108,7 +105,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: aliasTokens.spacing.Medium,
     },
-    
+
     // Subtitle styling
     subtitle: {
         ...aliasTokens.typography.body.Small,
@@ -116,12 +113,12 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: aliasTokens.spacing.XXSmall,
     },
-    
+
     // Form container with consistent spacing
     form: {
         gap: aliasTokens.spacing.Medium,
     } as unknown as any,
-    
+
     // Divider text between authentication methods
     or: {
         ...aliasTokens.typography.body.Small,

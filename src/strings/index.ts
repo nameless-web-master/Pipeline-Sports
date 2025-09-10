@@ -2,7 +2,8 @@ const StaticContent = {
     onBoarding: [
         'Get started by adding your profile photo.',
         'New we just need a few account details.',
-        'What interest you about the platform?'
+        'What interest you about the platform?',
+        'Awesome! Let’s find your local community.'
     ]
 }
 
@@ -46,20 +47,44 @@ export const LOCATION_STATES: Array<{
     value: string;
     areas: Array<{ label: string; value: string }>;
 }> = [
-    {
-        label: 'Louisiana',
-        value: 'la',
-        areas: [
-            { label: 'New Orleans Area', value: 'new_orleans' },
-            { label: 'Baton Rouge', value: 'baton_rouge' },
-            { label: 'Houma & Thibodaux', value: 'houma_thibodaux' },
-            { label: 'Lafayette', value: 'lafayette' },
-            { label: 'Lake Charles', value: 'lake_charles' },
-            { label: 'Shreveport & Bossier City', value: 'shreveport_bossier' },
-            { label: 'Alexandria', value: 'alexandria' },
-            { label: 'Monroe', value: 'monroe' },
-        ],
-    },
-];
+        {
+            label: 'Louisiana',
+            value: 'la',
+            areas: [
+                { label: 'New Orleans Area', value: 'new_orleans' },
+                { label: 'Baton Rouge', value: 'baton_rouge' },
+                { label: 'Houma & Thibodaux', value: 'houma_thibodaux' },
+                { label: 'Lafayette', value: 'lafayette' },
+                { label: 'Lake Charles', value: 'lake_charles' },
+                { label: 'Shreveport & Bossier City', value: 'shreveport_bossier' },
+                { label: 'Alexandria', value: 'alexandria' },
+                { label: 'Monroe', value: 'monroe' },
+            ],
+        },
+    ];
+
+// Community Commitment Agreement Content
+export const COMMUNITY_COMMITMENT = {
+    title: "Our Community Commitment",
+    heading: "This is a space where everyone in TravelBall belongs.",
+    intro: "To keep this a positive and supportive environment, we're asking you to commit to the following:",
+    commitments: [
+        "I agree to treat all members of the Travel Ball community, players, parents, coaches, and organizers with kindness and respect.",
+        "No matter their age, background, skill level, gender, race, location, or beliefs, every member deserves to feel welcome and included.",
+        "That means engaging without judgment, avoiding negativity, and helping to build a space where everyone can thrive on and off the field."
+    ],
+    buttonText: "Agree and continue"
+};
+
+// Notification Permission Screen Content
+export const NOTIFICATION_PERMISSION = {
+    title: "Turn on notifications?",
+    description: [
+        "Stay in the loop with tryouts, team updates, and new posts in your area.",
+        "Get alerts for messages, important announcements, and upcoming events."
+    ],
+    primaryButtonText: "Yes, notify me",
+    secondaryButtonText: "Skip"
+};
 
 export { StaticContent }

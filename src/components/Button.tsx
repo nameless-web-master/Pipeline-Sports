@@ -33,17 +33,17 @@ const Button: React.FC<ButtonProps> = ({ title, onPress, variant = 'primary', di
   const backgroundColorAnim = React.useRef(new Animated.Value(0)).current;
 
   // Map variant and pressed state to color tokens
-  const getBackgroundColor = () => {
-    if (disabled) {
-      return aliasTokens.button.primary.fillDisabled;
-    }
-    if (variant === 'danger') return aliasTokens.color.text.Error;
-    if (variant === 'ghost') return pressed ? aliasTokens.button.ghost.fillPressed : aliasTokens.button.ghost.fillEnabled;
-    if (variant === 'primary' || variant === 'secondary' || variant === 'tertiary' || variant === 'outline') {
-      return pressed ? aliasTokens.button[variant].fillPressed : aliasTokens.button[variant].fillEnabled;
-    }
-    return aliasTokens.button.primary.fillEnabled;
-  };
+  // const getBackgroundColor = () => {
+  //   if (disabled) {
+  //     return aliasTokens.button.primary.fillDisabled;
+  //   }
+  //   if (variant === 'danger') return aliasTokens.color.text.Error;
+  //   if (variant === 'ghost') return pressed ? aliasTokens.button.ghost.fillPressed : aliasTokens.button.ghost.fillEnabled;
+  //   if (variant === 'primary' || variant === 'secondary' || variant === 'tertiary' || variant === 'outline') {
+  //     return pressed ? aliasTokens.button[variant].fillPressed : aliasTokens.button[variant].fillEnabled;
+  //   }
+  //   return aliasTokens.button.primary.fillEnabled;
+  // };
   const getBorderColor = () => {
     if (disabled) {
       return aliasTokens.button.primary.borderDisabled;
@@ -124,8 +124,8 @@ const Button: React.FC<ButtonProps> = ({ title, onPress, variant = 'primary', di
         style={styles.pressable}
         onPress={onPress}
         disabled={disabled}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
+        // onPressIn={handlePressIn}
+        // onPressOut={handlePressOut}
       >
         <Text style={[
           styles.text,

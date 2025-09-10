@@ -11,6 +11,8 @@ import Gateway from '../screens/onBoarding/entry/gateway';
 import SignupWithEmailScreen from '../screens/onBoarding/auth/signUp';
 import ResendEmailScreen from '../screens/onBoarding/auth/resendEmail';
 import { OnBoardingMain } from '../screens/onBoarding/main';
+import CommunityCommitmentScreen from '../screens/onBoarding/agreements';
+import NotificationScreen from '../screens/onBoarding/agreements/notification';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -24,6 +26,8 @@ const Navigation = (): ReactElement => {
         <Stack.Screen name="SignupWithEmailScreen" component={SignupWithEmailScreen} />
         <Stack.Screen name="ResendEmailScreen" component={ResendEmailScreen} />
         <Stack.Screen name="OnBoardingMain" component={OnBoardingMain} />
+        <Stack.Screen name="CommunityCommitmentScreen" component={CommunityCommitmentScreen} />
+        <Stack.Screen name="NotificationScreen" component={NotificationScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
