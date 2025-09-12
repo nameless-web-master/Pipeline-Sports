@@ -1,10 +1,13 @@
-import React, { ReactElement, useMemo } from 'react';
-import { View, Text, StyleSheet, Linking } from 'react-native';
+import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import Button from '../../../components/Button';
 import CircleIcon from '../../../components/CircleIcon';
 import { aliasTokens } from '../../../theme/alias';
-import { ResendEmailScreen as ResendEmailType, RootStackParamList } from '../../../types/navigation';
+import { ResendEmailScreen as ResendEmailType } from '../../../types/navigation';
 import { ImagesAssets } from '../../../assets';
+import * as Linking from 'expo-linking';
+import { sendResetPasswordEmail, sendEmailVerification } from '../../../hooks/useAuth';
+import type { ShowToast } from '../../../types/toast';
 
 /**
  * Email verification prompt screen
@@ -14,7 +17,11 @@ import { ImagesAssets } from '../../../assets';
  * - Displays the email (tappable to open the mail client)
  * - Offers a minimal "Resend Email" action (navigation-only stub)
  */
-const ResendEmailScreen = ({ navigation, route }: ResendEmailType): ReactElement => {
+interface Props extends ResendEmailType {
+    showToast: ShowToast;
+}
+
+const ResendEmailScreen = ({ navigation, route, showToast }: Props): ReactElement => {
     // Prefer the provided email, fall back to a generic placeholder
     const email = route?.params?.email ?? 'you@example.com';
 
@@ -27,24 +34,86 @@ const ResendEmailScreen = ({ navigation, route }: ResendEmailType): ReactElement
     };
 
     // Decide next route based on entry context
-    const nextRoute: keyof RootStackParamList | undefined = useMemo(() => {
+    const nextRoute: Function | undefined = useMemo(() => {
         switch (content) {
             case 'signup':
-                return 'OnBoardingMain';
+                return sendEmailVerification;
             case 'reset':
                 // Note: matches current route name in types (intentional spelling)
-                return 'ResetPassowrd';
+                return sendResetPasswordEmail;
             default:
                 return undefined;
         }
     }, [content]);
 
-    const handleResend = () => {
-        // TODO: Wire to API to trigger resend; currently navigates forward only
-        if (nextRoute) {
-            navigation.navigate(nextRoute);
+    // Generate a context-specific message to guide the user on the next step.
+    const contentMessage: string = useMemo(() => {
+        switch (content) {
+            case 'signup':
+                return 'and verify your email.';
+            case 'reset':
+                return 'for the instructions to reset your password.';
+            default:
+                return '';
+        }
+    }, [content]);
+
+    /**
+     * Trigger resend action and toast based on result shape
+     * - Success (result === true) → show concise custom success text
+     * - Failure (result is Error-like) → show error.message
+     */
+    const handleEmailSent = async () => {
+        if (!nextRoute) return;
+        try {
+            const result = await nextRoute(email);
+
+            if (result === true) {
+                // Only show custom success text
+                showToast({
+                    message: content === 'reset' ? 'Password reset email sent' : 'Verification email sent',
+                    type: 'success',
+                });
+                return;
+            }
+
+            // Any non-true result is treated as an error-like object
+            const errorMessage = (result as any)?.message ?? 'Failed to send email. Try again.';
+            showToast({ message: errorMessage, type: 'danger' });
+        } catch (err: any) {
+            const errorMessage = err?.message ?? 'Failed to send email. Try again.';
+            showToast({ message: errorMessage, type: 'danger' });
         }
     };
+
+    useEffect(() => {
+        const handleDeepLink = (url: string | null) => {
+            if (!url) return;
+
+            console.log('Initial URL:', url);
+
+            if (url.includes('OnBoardingMain')) {
+                showToast({ message: 'Email verified successfully.', type: 'success' });
+                navigation.navigate('OnBoardingMain');
+            } else if (url.includes('ResetPassowrd')) {
+                showToast({ message: 'Password reset email sent.', type: 'success' });
+                navigation.navigate('ResetPassowrd');
+            }
+
+        };
+
+        // Get the initial URL
+        Linking.getInitialURL().then(handleDeepLink);
+
+        // Listen for new incoming URLs
+        const subscription = Linking.addEventListener('url', (event) => {
+            handleDeepLink(event.url);
+        });
+
+        return () => {
+            subscription.remove();
+        };
+    }, []);
 
     return (
         <View style={styles.screen}>
@@ -64,11 +133,16 @@ const ResendEmailScreen = ({ navigation, route }: ResendEmailType): ReactElement
                     <Text style={styles.emailLink} onPress={handleOpenMail} accessibilityRole="link">
                         {email}
                     </Text>{' '}
-                    and verify your email.
+                    {contentMessage}.
                 </Text>
 
                 {/* Resend email action button */}
-                <Button title="Resend Email" variant="outline" onPress={handleResend} style={styles.cta} />
+                <Button
+                    title="Resend Email"
+                    variant="outline"
+                    onPress={handleEmailSent}
+                    style={styles.cta}
+                />
             </View>
         </View>
     );

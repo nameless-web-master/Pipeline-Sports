@@ -1,29 +1,38 @@
 {
   "expo": {
-    "name": "my-expo-app",
-    "slug": "my-expo-app",
+    "name": "pipelineSports",
+    "scheme": "pipelinesports",
+    "deepLinking": true,
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "slug": "pipelineSports-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "https://dswptzhcmjnylautdeea.supabase.co/storage/v1/object/public/app-assets/Logo/Logo-small.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "https://dswptzhcmjnylautdeea.supabase.co/storage/v1/object/public/app-assets/Logo/Logo-small.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pipeline.sports"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "https://dswptzhcmjnylautdeea.supabase.co/storage/v1/object/public/app-assets/Logo/Logo-small.png",
+        "backgroundColor": "#ffffff",
+        "package": "com.pipeline.sports"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "https://dswptzhcmjnylautdeea.supabase.co/storage/v1/object/public/app-assets/Logo/Logo-small.png"
     }
   }
 }

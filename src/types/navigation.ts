@@ -13,8 +13,8 @@ export type RootStackParamList = {
   OnBoardingMain: undefined;
   CommunityCommitmentScreen: undefined;
   NotificationScreen: undefined;
-  Login: undefined;
-  ForgotPassword: undefined;
+  Login: { email?: string } | undefined;
+  ForgotPassword: { email?: string } | undefined;
   ResetPassowrd: undefined;
   NotePage: {
     title?: string;

@@ -1,13 +1,14 @@
 // src/navigation/Navigation.tsx
 import React, { memo, ReactElement } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import type { RootStackParamList } from '../types/navigation';
+import type { ShowToast } from '../types/toast';
 
 // OnBoarding Navigation Import
 import OnBoardingScreen from '../screens/onBoarding/entry';
 import { EntryMain } from '../screens/onBoarding/entry/main';
-import Gateway from '../screens/onBoarding/entry/gateway';
+import * as GatewayModule from '../screens/onBoarding/entry/gateway';
 import { OnBoardingMain } from '../screens/onBoarding/main';
 
 // Agreement Navigation Import
@@ -22,23 +23,41 @@ import ResendEmailScreen from '../screens/onBoarding/auth/resendEmail';
 import ForgotPassword from '../screens/onBoarding/auth/forgotPassword';
 import ResetPassowrd from '../screens/onBoarding/auth/resetPassword';
 
+import { linking } from '../hooks/useLinking';
+
 
 // Success Note Import 
 import NotePage from '../components/layout/notePage';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-const Navigation = (): ReactElement => {
+interface NavigationProps {
+  showToast: ShowToast;
+}
+
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
+
+const Navigation = ({ showToast }: NavigationProps): ReactElement => {
+  // Handle modules that may export default or named component
+  const Gateway = (GatewayModule as any).default || (GatewayModule as any);
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+    <NavigationContainer ref={navigationRef} linking={linking}>
+      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
 
         {/* OnBoarding Navigation Link */}
 
-        <Stack.Screen name="Home" component={OnBoardingScreen} />
-        <Stack.Screen name="Entry" component={EntryMain} />
-        <Stack.Screen name="Gateway" component={Gateway} />
-        <Stack.Screen name="OnBoardingMain" component={OnBoardingMain} />
+        <Stack.Screen name="Home">
+          {(props) => <OnBoardingScreen {...props} />}
+        </Stack.Screen>
+        <Stack.Screen name="Entry">
+          {(props) => <EntryMain {...props} />}
+        </Stack.Screen>
+        <Stack.Screen name="Gateway">
+          {(props) => <Gateway {...props} showToast={showToast} />}
+        </Stack.Screen>
+        <Stack.Screen name="OnBoardingMain">
+          {(props) => <OnBoardingMain {...props} />}
+        </Stack.Screen>
 
         {/* Agreement Navigation Link */}
 
@@ -47,15 +66,27 @@ const Navigation = (): ReactElement => {
 
         {/* Auth Navigation Link */}
 
-        <Stack.Screen name="SignupWithEmailScreen" component={SignupWithEmailScreen} />
-        <Stack.Screen name="ResendEmailScreen" component={ResendEmailScreen} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-        <Stack.Screen name="ResetPassowrd" component={ResetPassowrd} />
+        <Stack.Screen name="SignupWithEmailScreen">
+          {(props) => <SignupWithEmailScreen {...props} showToast={showToast} />}
+        </Stack.Screen>
+        <Stack.Screen name="ResendEmailScreen">
+          {(props) => <ResendEmailScreen {...props} showToast={showToast} />}
+        </Stack.Screen>
+        <Stack.Screen name="Login">
+          {(props) => <Login {...props} showToast={showToast} />}
+        </Stack.Screen>
+        <Stack.Screen name="ForgotPassword">
+          {(props) => <ForgotPassword {...props} showToast={showToast} />}
+        </Stack.Screen>
+        <Stack.Screen name="ResetPassowrd">
+          {(props) => <ResetPassowrd {...props} showToast={showToast} />}
+        </Stack.Screen>
 
         {/* Success Note Link */}
-        
-        <Stack.Screen name="NotePage" component={NotePage} />
+
+        <Stack.Screen name="NotePage">
+          {(props) => <NotePage {...props} />}
+        </Stack.Screen>
 
       </Stack.Navigator>
     </NavigationContainer>

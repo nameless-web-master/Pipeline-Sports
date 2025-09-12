@@ -1,15 +1,17 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
 
 import { aliasTokens } from '../../../theme/alias';
 import validateEmail from '../../../utils/validateEmail';
 import type { Login as LoginScreenProps } from '../../../types/navigation';
+import type { ShowToast } from '../../../types/toast';
 
 import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import SocialButton from '../../../components/SocialButton';
 import PasswordInput from '../../../components/PasswordInput';
 import BackButton from '../../../components/BackButton';
+import { signInWithPassword } from '../../../hooks/useAuth';
 
 /**
  * Login screen for authentication entry
@@ -23,13 +25,46 @@ import BackButton from '../../../components/BackButton';
  * @param props - Navigation props for screen transitions
  * @returns JSX element representing the authentication Login
  */
-const Login = ({ navigation }: LoginScreenProps): ReactElement => {
-    // Form state management
-    const [email, setEmail] = useState<string>('daniel.martinez1995@gmail.com');
-    const [password, setPassword] = useState<string>('daniel');
+interface LoginProps extends LoginScreenProps {
+    showToast: ShowToast;
+}
 
-    // Email validation state
-    const isEmailValid = validateEmail(email);
+/**
+ * Login screen
+ * - Reads prefilled email from route params (if provided)
+ * - Uses app-level toast via showToast prop
+ */
+const Login = ({ navigation, route, showToast }: LoginProps): ReactElement => {
+    // Initialize email from route params for consistency with Signup screen
+    const initialEmail = route?.params?.email ?? '';
+
+    // Form state management
+    const [email, setEmail] = useState<string>(initialEmail);
+    const [password, setPassword] = useState<string>('');
+
+    const [isLoading, setIsLoading] = useState(false);
+    // Email validation state (memoized)
+    const isEmailValid = useMemo(() => validateEmail(email), [email]);
+
+    // Placeholder submit action to demonstrate using showToast from App.tsx
+    const handleEmailLogin = useCallback(async () => {
+        if (!isEmailValid || !password || isLoading) return;
+        setIsLoading(true);
+        try {
+            const signInResult = await signInWithPassword(email, password);
+
+            // console.log(signInResult);
+
+            if (signInResult)
+                showToast({ message: "Welcome Back", type: 'success' });
+            else throw Error;
+        } catch (err) {
+            showToast({ message: 'Invalid login credentials', type: 'danger' });
+        } finally {
+            setIsLoading(false);
+        }
+        // showToast({ message: 'Logging in… (stub)', type: 'info' });
+    }, [isEmailValid, showToast, password, isLoading]);
 
     return (
         <View style={[
@@ -61,19 +96,19 @@ const Login = ({ navigation }: LoginScreenProps): ReactElement => {
                     label="Password"
                     value={password}
                     onChangeText={setPassword}
-                    placeholder="••••••••"
+                    placeholder="•••••••••"
                 />
 
-                <Pressable onPress={() => navigation.navigate('ForgotPassword')}>
+                <Pressable onPress={() => navigation.navigate('ForgotPassword', { email })}>
                     <Text style={styles.forgotPassword}>Forgot Password?</Text>
                 </Pressable>
 
                 {/* Primary email authentication button */}
                 <Button
-                    title="Login with Email"
+                    title={isLoading ? "SignIn..." : "Login with Email"}
                     variant="primary"
-                    onPress={() => navigation.navigate('SignupWithEmailScreen', { email })}
-                    disabled={!isEmailValid}
+                    onPress={handleEmailLogin}
+                    disabled={!isEmailValid || !password || isLoading}
                 />
 
                 {/* Divider text */}

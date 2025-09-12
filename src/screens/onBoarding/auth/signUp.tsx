@@ -8,7 +8,9 @@ import Button from '../../../components/Button';
 import { aliasTokens } from '../../../theme/alias';
 import validateEmail from '../../../utils/validateEmail';
 import type { SignupWithEmailScreen as SignupType } from '../../../types/navigation';
+import type { ShowToast } from '../../../types/toast';
 import LegalText from '../../../components/LegalText';
+import { signUp } from '../../../hooks/useAuth';
 
 // Password validation regex patterns
 const LETTER_NUMBER_REGEX = /[A-Za-z]/;
@@ -27,8 +29,8 @@ const PasswordRule = memo(({ met, label }: { met: boolean; label: string }) => {
         size={18}
         color={met ? aliasTokens.color.semantic.success.Default : aliasTokens.color.text.Tertiary}
         style={{ marginRight: aliasTokens.spacing.XSmall }}
-        
-        
+
+
       />
       <Text style={[styles.ruleText, met ? styles.ruleTextMet : styles.ruleTextUnmet]}>{label}</Text>
     </View>
@@ -39,19 +41,26 @@ PasswordRule.displayName = 'PasswordRule';
 /**
  * Signup screen with email and password validation
  * Features real-time password strength validation with visual indicators
+ * Integrates with Supabase auth for user registration
  */
-const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
+interface SignupProps extends SignupType {
+  showToast: ShowToast;
+}
+
+const SignupWithEmailScreen: React.FC<SignupProps> = ({ navigation, route, showToast }) => {
   // Form state management
   const [email, setEmail] = useState(route?.params?.email ?? '');
-  const [password, setPassword] = useState('qwe123qw');
+  const [password, setPassword] = useState(''); // Removed default password for security
+  const [isLoading, setIsLoading] = useState(false);
 
   // Password validation rules - memoized for performance
   const emailValid = useMemo(() => validateEmail(email), [email]);
   const passHasMin = useMemo(() => password.length >= 8, [password]);
-  const passHasLetterAndNumber = useMemo(() => LETTER_NUMBER_REGEX.test(password) && DIGIT_REGEX.test(password), [password]);
+  const passHasLetterAndNumber = useMemo(() => 
+    LETTER_NUMBER_REGEX.test(password) && DIGIT_REGEX.test(password), [password]);
   const passHasSpecial = useMemo(() => SPECIAL_CHAR_REGEX.test(password), [password]);
 
-  // Overall form validation state
+  // Overall form validation state - all rules must be met
   const isFormValid = emailValid && passHasMin && passHasLetterAndNumber && passHasSpecial;
 
   // Event handlers - memoized for performance
@@ -59,15 +68,47 @@ const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
     Linking.openURL(url).catch(() => { });
   }, []);
 
+  /**
+   * Navigate back to the gateway screen
+   */
   const handleBack = useCallback(() => {
     navigation.navigate('Gateway');
   }, [navigation]);
 
-  const handleSignup = useCallback(() => {
-    // TODO: Hook up to actual signup API when available
-    // For now, navigate to email verification screen
-    navigation.navigate('ResendEmailScreen', { email, content: 'signup' });
-  }, [navigation, email]);
+  /**
+   * Handles user signup with proper error handling and user feedback
+   * Uses the improved signUp function that returns structured success/error responses
+   */
+  const handleSignup = useCallback(async () => {
+    if (!isFormValid || isLoading) return;
+
+    setIsLoading(true);
+    try {
+      const signUpResult = await signUp(email, password);
+
+      if (signUpResult.success) {
+        // Signup successful - user created and email confirmation sent
+        showToast({ 
+          message: "Account created! Please check your email to verify your account.", 
+          type: 'success' 
+        });
+        navigation.navigate('ResendEmailScreen', { email, content: "signup" });
+      } else {
+        // Signup failed - show specific error message
+        const errorMessage = signUpResult.error || 'Failed to create account. Please try again.';
+        showToast({ message: errorMessage, type: 'danger' });
+      }
+    } catch (err) {
+      // Handle unexpected errors
+      console.error('Signup error:', err);
+      showToast({ 
+        message: 'An unexpected error occurred. Please try again.', 
+        type: 'danger' 
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [navigation, email, password, isFormValid, isLoading, showToast]);
 
   return (
     <View style={aliasTokens.container.bodyPadding}>
@@ -109,9 +150,9 @@ const SignupWithEmailScreen: React.FC<SignupType> = ({ navigation, route }) => {
         {/* Submit button */}
         <View style={styles.spacerLarge} />
         <Button
-          title="Signup with email"
+          title={isLoading ? "Creating Account..." : "Signup with email"}
           onPress={handleSignup}
-          disabled={!isFormValid}
+          disabled={!isFormValid || isLoading}
           style={styles.cta}
         />
 

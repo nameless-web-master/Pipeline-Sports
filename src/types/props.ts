@@ -1,0 +1,1 @@
+export type checkEmailPropsType = 'login' | 'verify' | 'signup' | 'error';

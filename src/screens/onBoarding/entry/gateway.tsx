@@ -1,15 +1,22 @@
-import React, { ReactElement, useState } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import React, { ReactElement, useState, useCallback } from 'react';
+import { View, Text, Image, StyleSheet, AppState } from 'react-native';
 
 import { aliasTokens } from '../../../theme/alias';
 import validateEmail from '../../../utils/validateEmail';
-import type { Gateway as GatewayScreenProps } from '../../../types/navigation';
 
+// Import Types of several Varialbles
+import type { Gateway as GatewayScreenProps } from '../../../types/navigation';
+import type { ShowToast } from '../../../types/toast';
+import type { checkEmailPropsType } from '../../../types/props';
+
+// Import Components
 import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import SocialButton from '../../../components/SocialButton';
 import LegalText from '../../../components/LegalText';
 import { LogoImage } from '../../../components/Logo';
+import { checkEmailExist, sendEmailVerification } from '../../../hooks/useAuth';
+import { supabase } from '../../../lib/supabase';
 
 /**
  * Gateway screen for authentication entry
@@ -23,12 +30,69 @@ import { LogoImage } from '../../../components/Logo';
  * @param props - Navigation props for screen transitions
  * @returns JSX element representing the authentication gateway
  */
-const Gateway = ({ navigation }: GatewayScreenProps): ReactElement => {
-    // Form state management
-    const [email, setEmail] = useState<string>('daniel.martinez1995@gmail.com');
+interface GatewayProps extends GatewayScreenProps {
+    showToast: ShowToast;
+}
 
-    // Email validation state
+// Tells Supabase Auth to continuously refresh the session automatically if
+// the app is in the foreground. When this is added, you will continue to receive
+// `onAuthStateChange` events with the `TOKEN_REFRESHED` or `SIGNED_OUT` event
+// if the user's session is terminated. This should only be registered once.
+AppState.addEventListener('change', (state) => {
+    if (state === 'active')
+        supabase.auth.startAutoRefresh();
+    else
+        supabase.auth.stopAutoRefresh();
+});
+
+
+const Gateway = ({ navigation, showToast }: GatewayProps): ReactElement => {
+    // Form state
+    const [email, setEmail] = useState<string>('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Derived state
     const isEmailValid = validateEmail(email);
+
+    /**
+     * Check whether the email exists and route accordingly.
+     * - 'login': user exists → navigate to Login with prefilled email
+     * - 'signup': user not found → navigate to Signup with prefilled email
+     * - 'error': unexpected error → show error toast
+     */
+    const handleEmailAuth = useCallback(async () => {
+        if (!isEmailValid || isLoading) return;
+
+        setIsLoading(true);
+        try {
+            const result: checkEmailPropsType = await checkEmailExist(email);
+            console.log(result);
+
+            switch (result) {
+                case 'login':
+                    showToast({ message: 'Account found. Please log in.', type: 'success' });
+                    navigation.navigate('Login', { email });
+                    break;
+                case 'verify':
+                    showToast({ message: 'Account found. But you should verify.', type: 'info' });
+                    sendEmailVerification(email);
+                    navigation.navigate('ResendEmailScreen', { email, content: 'signup' });
+                    break;
+                case 'signup':
+                    showToast({ message: 'No account found. Create one.', type: 'info' });
+                    navigation.navigate('SignupWithEmailScreen', { email });
+                    break;
+                default:
+                    showToast({ message: 'An error occurred. Please try again.', type: 'danger' });
+            }
+
+        } catch (error) {
+            console.error('Email auth error:', error);
+            showToast({ message: 'An error occurred. Please try again.', type: 'danger' });
+        } finally {
+            setIsLoading(false);
+        }
+    }, [email, isEmailValid, isLoading, navigation, showToast]);
 
     return (
         <View style={[
@@ -59,10 +123,10 @@ const Gateway = ({ navigation }: GatewayScreenProps): ReactElement => {
 
                 {/* Primary email authentication button */}
                 <Button
-                    title="Continue with Email"
+                    title={isLoading ? "Checking..." : "Continue with Email"}
                     variant="primary"
-                    onPress={() => navigation.navigate('SignupWithEmailScreen', { email })}
-                    disabled={!isEmailValid}
+                    onPress={handleEmailAuth}
+                    disabled={!isEmailValid || isLoading}
                 />
 
                 {/* Divider text */}
@@ -87,6 +151,8 @@ const Gateway = ({ navigation }: GatewayScreenProps): ReactElement => {
 
             {/* Legal text footer */}
             <LegalText />
+
+            {/* Toast is rendered once at the App root */}
         </View>
     );
 };
@@ -128,3 +194,6 @@ const styles = StyleSheet.create({
 });
 
 export default Gateway;
+
+
+

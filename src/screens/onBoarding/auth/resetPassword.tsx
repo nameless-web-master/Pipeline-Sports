@@ -6,6 +6,8 @@ import PasswordInput from '../../../components/PasswordInput';
 import Button from '../../../components/Button';
 import { aliasTokens } from '../../../theme/alias';
 import type { ResetPassowrd as ResetPasswordProps } from '../../../types/navigation';
+import type { ShowToast } from '../../../types/toast';
+import { updatePassword, usePasswordResetLink } from '../../../hooks/useAuth';
 
 // Password validation regex patterns
 const LETTER_NUMBER_REGEX = /[A-Za-z]/;
@@ -35,9 +37,18 @@ PasswordRule.displayName = 'PasswordRule';
  * Signup screen with email and password validation
  * Features real-time password strength validation with visual indicators
  */
-const ResetPassowrd: React.FC<ResetPasswordProps> = ({ navigation, route }) => {
+interface Props extends ResetPasswordProps { showToast?: ShowToast }
+
+/**
+ * ResetPassowrd screen
+ * - Validates new password locally
+ * - Submits to Supabase (requires session from the reset link)
+ */
+const ResetPassowrd: React.FC<Props> = ({ navigation, route, showToast }) => {
     // Form state management
-    const [password, setPassword] = useState('qwe123qw');
+    const [password, setPassword] = useState('');
+    const { sessionLoaded } = usePasswordResetLink();
+    const [isLoading, setIsLoading] = useState(false);
 
     // Password validation rules - memoized for performance
     const passHasMin = useMemo(() => password.length >= 8, [password]);
@@ -57,9 +68,25 @@ const ResetPassowrd: React.FC<ResetPasswordProps> = ({ navigation, route }) => {
     }, [navigation]);
 
 
-    const handlePassword = useCallback(() => {
-        navigation.navigate('NotePage');
-    }, [navigation]);
+    const handlePassword = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            if (!isFormValid) return;
+            const ok = await updatePassword(password);
+            if (ok) {
+                showToast?.({ message: 'Password updated successfully.', type: 'success' });
+                navigation.navigate('Login', { email: undefined });
+            } else {
+                showToast?.({ message: 'Failed to update password. Try again.', type: 'danger' });
+            }
+        }
+        catch (err: any) {
+            const errorMessage = err?.message ?? 'Failed to send email. Try again.';
+            showToast?.({ message: errorMessage, type: 'danger' });
+        } finally {
+            setIsLoading(false)
+        }
+    }, [isFormValid, password, navigation, showToast, sessionLoaded, isLoading]);
 
 
     return (
@@ -92,7 +119,7 @@ const ResetPassowrd: React.FC<ResetPasswordProps> = ({ navigation, route }) => {
                 <Button
                     title="Reset Password"
                     onPress={handlePassword}
-                    disabled={!isFormValid}
+                    disabled={!isFormValid || isLoading}
                     style={styles.cta}
                 />
             </ScrollView>
