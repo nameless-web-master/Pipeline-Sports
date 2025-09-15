@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, Linking, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Dropdown from '../../../../components/Dropdown';
 import BottomSheet from '../../../../components/BottomSheet';
 import { aliasTokens } from '../../../../theme/alias';
@@ -37,16 +37,19 @@ interface LocalCommunityProps {
     onStateChange: (state: string) => void;
     /** Handler for area selection changes */
     onAreaChange: (area: string) => void;
+    /** Handler for step */
+    setStep: (step: number) => void;
     /** Notify parent whether this step is currently valid to proceed. */
     onValidityChange?: (isValid: boolean) => void;
 }
 
-const LocalCommunity: React.FC<LocalCommunityProps> = ({ 
+const LocalCommunity: React.FC<LocalCommunityProps> = ({
     selectedState,
     selectedArea,
     onStateChange,
     onAreaChange,
-    onValidityChange 
+    onValidityChange,
+    setStep
 }) => {
 
     // Bottom sheet visibility states
@@ -76,9 +79,11 @@ const LocalCommunity: React.FC<LocalCommunityProps> = ({
         setShowAreasSheet(false);
     };
 
+
     // Notify parent about validity changes whenever selection changes
     React.useEffect(() => {
         const canContinue = Boolean(selectedState && selectedArea);
+        console.log(canContinue);
         onValidityChange?.(canContinue);
     }, [selectedState, selectedArea, onValidityChange]);
 
@@ -111,7 +116,7 @@ const LocalCommunity: React.FC<LocalCommunityProps> = ({
             {/* Helper copy with Request link */}
             <Text style={styles.helperText}>
                 Select the local area closest to you. If your area isn’t
-                listed, <Text style={styles.link} onPress={() => Linking.openURL('https://forms.gle/')}>Request location</Text>
+                listed, <Text style={styles.link} onPress={() => setStep(5)}>Request location</Text>
             </Text>
 
             {/* Spacer to push content to the top */}

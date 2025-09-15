@@ -1,8 +1,8 @@
 import { supabase } from "../lib/supabase";
 import { AuthApiError } from "@supabase/supabase-js";
 
-// Import Types of several Varialbles
-import type { checkEmailPropsType } from "../types/props";
+// Import Types of several Variables
+import type { checkEmailPropsType, DatabaseState } from "../types/props";
 import { useCallback, useState } from "react";
 import { useDeepLinkListener } from "./useDeepLinkListner";
 
@@ -22,6 +22,8 @@ export const getCurrentUser = async () => {
         return { success: false, user: null, error };
     }
 }
+
+
 
 export const getTokenFromUrl = async (url: string): Promise<Record<string, string>> => {
     try {
@@ -194,6 +196,7 @@ export const sendEmailVerification = async (email: string, redirectTo: string = 
     }
 }
 
+
 /**
  * Determine whether an email already exists in Supabase auth.
  * Returns:
@@ -232,7 +235,7 @@ export const usePasswordResetLink = () => {
         if (access_token && refresh_token) {
             const { error } = await supabase.auth.exchangeCodeForSession(url);
             if (error) {
-                console.error('[Supabase] Session error:', error.message);
+                console.log('[Supabase] Session error:', error.message);
             } else {
                 setSessionLoaded(true);
             }

@@ -50,7 +50,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           return false;
         }
       } catch (error) {
-        console.error('ImageUploader: Error requesting permissions:', error);
+        console.log('ImageUploader: Error requesting permissions:', error);
         Alert.alert('Error', 'Failed to request permissions. Please try again.');
         return false;
       }
@@ -86,7 +86,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         console.log('ImageUploader: User canceled image selection or no assets returned');
       }
     } catch (error) {
-      console.error('ImageUploader: Error picking image:', error);
+      console.log('ImageUploader: Error picking image:', error);
       Alert.alert('Error', 'Failed to pick image. Please try again.');
     }
   };
@@ -113,7 +113,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         return;
       }
     } catch (error) {
-      console.error('ImageUploader: Error requesting camera permissions:', error);
+      console.log('ImageUploader: Error requesting camera permissions:', error);
       Alert.alert('Error', 'Failed to request camera permissions. Please try again.');
       return;
     }
@@ -141,7 +141,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         console.log('ImageUploader: User canceled camera or no assets returned');
       }
     } catch (error) {
-      console.error('ImageUploader: Error taking photo:', error);
+      console.log('ImageUploader: Error taking photo:', error);
       // Defensive fallback for Android emulators or devices without camera app
       Alert.alert(
         'Camera unavailable',

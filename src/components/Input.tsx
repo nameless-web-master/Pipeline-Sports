@@ -99,9 +99,11 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center', // Center text vertically
   },
   inputEnabled: {
+    borderRadius: aliasTokens.borderRadius.Default,
     backgroundColor: 'transparent',
   },
   inputError: {
+    borderRadius: aliasTokens.borderRadius.Default,
     backgroundColor: aliasTokens.input.FillError,
     borderColor: aliasTokens.input.BorderError,
   },

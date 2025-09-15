@@ -74,12 +74,12 @@ const Gateway = ({ navigation, showToast }: GatewayProps): ReactElement => {
                     navigation.navigate('Login', { email });
                     break;
                 case 'verify':
-                    showToast({ message: 'Account found. But you should verify.', type: 'info' });
+                    showToast({ message: 'Account found. But you should verify.' });
                     sendEmailVerification(email);
                     navigation.navigate('ResendEmailScreen', { email, content: 'signup' });
                     break;
                 case 'signup':
-                    showToast({ message: 'No account found. Create one.', type: 'info' });
+                    showToast({ message: 'No account found. Create one.' });
                     navigation.navigate('SignupWithEmailScreen', { email });
                     break;
                 default:
@@ -87,7 +87,7 @@ const Gateway = ({ navigation, showToast }: GatewayProps): ReactElement => {
             }
 
         } catch (error) {
-            console.error('Email auth error:', error);
+            console.log('Email auth error:', error);
             showToast({ message: 'An error occurred. Please try again.', type: 'danger' });
         } finally {
             setIsLoading(false);

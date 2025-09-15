@@ -56,7 +56,7 @@ const Navigation = ({ showToast }: NavigationProps): ReactElement => {
           {(props) => <Gateway {...props} showToast={showToast} />}
         </Stack.Screen>
         <Stack.Screen name="OnBoardingMain">
-          {(props) => <OnBoardingMain {...props} />}
+          {(props) => <OnBoardingMain {...props} showToast={showToast} />}
         </Stack.Screen>
 
         {/* Agreement Navigation Link */}

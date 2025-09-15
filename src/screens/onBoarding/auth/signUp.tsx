@@ -10,7 +10,7 @@ import validateEmail from '../../../utils/validateEmail';
 import type { SignupWithEmailScreen as SignupType } from '../../../types/navigation';
 import type { ShowToast } from '../../../types/toast';
 import LegalText from '../../../components/LegalText';
-import { signUp } from '../../../hooks/useAuth';
+import { signInWithPassword, signUp } from '../../../hooks/useAuth';
 
 // Password validation regex patterns
 const LETTER_NUMBER_REGEX = /[A-Za-z]/;
@@ -56,7 +56,7 @@ const SignupWithEmailScreen: React.FC<SignupProps> = ({ navigation, route, showT
   // Password validation rules - memoized for performance
   const emailValid = useMemo(() => validateEmail(email), [email]);
   const passHasMin = useMemo(() => password.length >= 8, [password]);
-  const passHasLetterAndNumber = useMemo(() => 
+  const passHasLetterAndNumber = useMemo(() =>
     LETTER_NUMBER_REGEX.test(password) && DIGIT_REGEX.test(password), [password]);
   const passHasSpecial = useMemo(() => SPECIAL_CHAR_REGEX.test(password), [password]);
 
@@ -88,11 +88,11 @@ const SignupWithEmailScreen: React.FC<SignupProps> = ({ navigation, route, showT
 
       if (signUpResult.success) {
         // Signup successful - user created and email confirmation sent
-        showToast({ 
-          message: "Account created! Please check your email to verify your account.", 
-          type: 'success' 
+        showToast({
+          message: "Account created! Please check your email to verify your account.",
+          type: 'success'
         });
-        navigation.navigate('ResendEmailScreen', { email, content: "signup" });
+        navigation.navigate('ResendEmailScreen', { email, content: "signup", password });
       } else {
         // Signup failed - show specific error message
         const errorMessage = signUpResult.error || 'Failed to create account. Please try again.';
@@ -100,10 +100,10 @@ const SignupWithEmailScreen: React.FC<SignupProps> = ({ navigation, route, showT
       }
     } catch (err) {
       // Handle unexpected errors
-      console.error('Signup error:', err);
-      showToast({ 
-        message: 'An unexpected error occurred. Please try again.', 
-        type: 'danger' 
+      console.log('Signup error:', err);
+      showToast({
+        message: 'An unexpected error occurred. Please try again.',
+        type: 'danger'
       });
     } finally {
       setIsLoading(false);

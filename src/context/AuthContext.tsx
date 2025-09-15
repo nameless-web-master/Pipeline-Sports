@@ -1,69 +1,50 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { supabase } from '../lib/supabase';
-import { Session } from '@supabase/supabase-js';
-import { Linking } from 'react-native';
+import React, { useState, useEffect, createContext, PropsWithChildren } from 'react'
+import { Session, User } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 
-interface AuthContextType {
-    session: Session | null;
-    loading: boolean;
+
+type AuthProps = {
+    user: User | null
+    session: Session | null
+    initialized?: boolean
+    signOut?: () => void
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<Partial<AuthProps>>({})
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [session, setSession] = useState<Session | null>(null);
-    const [loading, setLoading] = useState(true);
+// Custom hook to read the context values
+export function useAuth() {
+    return React.useContext(AuthContext)
+}
+
+export const AuthProvider = ({ children }: PropsWithChildren) => {
+    const [user, setUser] = useState<User | null>()
+    const [session, setSession] = useState<Session | null>(null)
+    const [initialized, setInitialized] = useState<boolean>(false)
 
     useEffect(() => {
-        const getInitialSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setSession(session);
-            setLoading(false);
-        };
-
-        getInitialSession();
-
-        // Listen for real-time session changes
-        const { data: authListener } = supabase.auth.onAuthStateChange((event, newSession) => {
-            setSession(newSession);
-        });
-
-        // Handle initial deep link
-        const handleInitialUrl = async () => {
-            const initialUrl = await Linking.getInitialURL();
-            if (initialUrl) {
-                supabase.auth.exchangeCodeForSession(initialUrl);
-            }
-        };
-
-        handleInitialUrl();
-
-        // Listen for subsequent deep links
-        const handleDeepLink = ({ url }: { url: string }) => {
-            if (url) {
-                supabase.auth.exchangeCodeForSession(url);
-            }
-        };
-
-        Linking.addEventListener('url', handleDeepLink);
-
+        // Listen for changes to authentication state
+        const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
+            setSession(session)
+            setUser(session ? session.user : null)
+            setInitialized(true)
+        })
         return () => {
-            authListener.subscription.unsubscribe();
-            Linking.removeAllListeners('url');
-        };
-    }, []);
+            data.subscription.unsubscribe()
+        }
+    }, [])
 
-    return (
-        <AuthContext.Provider value={{ session, loading }}>
-            {children}
-        </AuthContext.Provider>
-    );
-};
-
-export const useAuthContextHandle = () => {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
+    // Log out the user
+    const signOut = async () => {
+        await supabase.auth.signOut()
     }
-    return context;
-};
+
+    const value = {
+        user,
+        session,
+        initialized,
+        signOut,
+    }
+
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}

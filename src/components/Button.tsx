@@ -124,8 +124,8 @@ const Button: React.FC<ButtonProps> = ({ title, onPress, variant = 'primary', di
         style={styles.pressable}
         onPress={onPress}
         disabled={disabled}
-        // onPressIn={handlePressIn}
-        // onPressOut={handlePressOut}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
       >
         <Text style={[
           styles.text,

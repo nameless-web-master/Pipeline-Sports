@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar'
 import AppNavigator from './src/navigation/AppNavigator'
 import Toast from './src/components/Toast'
 import type { ShowToast, ShowToastOptions } from './src/types/toast'
+import { AuthProvider } from './src/context/AuthContext'
 
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold } from '@expo-google-fonts/poppins'
 
@@ -24,7 +25,7 @@ export default function App(): ReactElement {
 
   // Exposed toast function passed via props to screens
   const showToast: ShowToast = useCallback((options: ShowToastOptions) => {
-    const { message, type = 'info', duration = 1200, afterToast } = options
+    const { message, type = 'info', duration = 1600, afterToast } = options
     setToastMessage(message)
     setToastType(type)
     setToastDuration(duration)
@@ -39,7 +40,7 @@ export default function App(): ReactElement {
 
   // App root: navigation container and status bar
   return (
-    <>
+    <AuthProvider>
       {/* Navigation tree receives a showToast prop; screens call it to display app-level toast */}
       <AppNavigator showToast={showToast} />
       <StatusBar style="auto" />
@@ -58,6 +59,6 @@ export default function App(): ReactElement {
           }
         }}
       />
-    </>
+    </AuthProvider>
   )
 }

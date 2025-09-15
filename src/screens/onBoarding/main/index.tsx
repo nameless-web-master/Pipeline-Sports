@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Header from "./header";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { aliasTokens } from "../../../theme/alias";
 import PhotoUpload from "./components/photoUpload";
 import SetProfile from "./components/SetProfile";
@@ -8,14 +8,26 @@ import SetInterest from "./components/SetInterest";
 import LocalCommunity from "./components/localCommunity";
 import Button from "../../../components/Button";
 import { OnBoardingMain as OnBoardingMainProps } from "../../../types/navigation";
+import { ShowToast } from "../../../types/toast";
+import { LocationRequest } from "./components/locationRequest";
+import { OnBoarding } from "../../../hooks/useProfile";
+import { OnboardingData } from "../../../types/props";
 
-export const OnBoardingMain = ({ navigation }: OnBoardingMainProps) => {
-    // Current step of onboarding flow (1..4)
+interface OnBoardingMainWithToast extends OnBoardingMainProps {
+    showToast: ShowToast;
+}
+
+export const OnBoardingMain = ({ navigation, showToast }: OnBoardingMainWithToast) => {
+    // Current step of onboarding flow (1..5)
     const [step, setStep] = useState(1);
     // Whether the current visible step is valid to proceed
     const [isStepValid, setIsStepValid] = useState(false);
+    // Loading state for onboarding completion
+    const [isCompletingOnboarding, setIsCompletingOnboarding] = useState(false);
 
     // ===== CENTRALIZED ONBOARDING DATA STATE =====
+    // All onboarding data is managed centrally in this component
+    // and passed down to child components as needed
 
     // Step 1: Photo Upload Data
     const [isImageUploaded, setIsImageUploaded] = useState<boolean>(false);
@@ -36,88 +48,106 @@ export const OnBoardingMain = ({ navigation }: OnBoardingMainProps) => {
     const [selectedState, setSelectedState] = useState<string | undefined>();
     const [selectedArea, setSelectedArea] = useState<string | undefined>();
 
-    // Centralized validation before moving forward.
-    // Replace the placeholder logic with real checks as needed.
-    // Step-specific validation is reported by child components via onValidityChange
-    // and stored in isStepValid.
+    // ===== HELPER FUNCTIONS =====
+
+    /**
+     * Builds the complete onboarding data object from current state
+     * @returns Complete onboarding data structure
+     */
+    const buildOnboardingData = (): OnboardingData => ({
+        photo: {
+            isUploaded: isImageUploaded,
+            uri: uploadedImageUri
+        },
+        profile: {
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            role,
+            dateOfBirth: {
+                year: dobYear,
+                month: dobMonth,
+                day: dobDay
+            }
+        },
+        interests: Array.from(selectedInterests),
+        location: {
+            state: selectedState,
+            area: selectedArea
+        }
+    });
+
+    /**
+     * Validates the current step before proceeding
+     * @returns true if current step is valid
+     */
     const validateCurrentStep = (): boolean => isStepValid;
 
     // Navigate to next step with validation.
     const handleNext = () => {
-        setIsStepValid(false);
-
         const isValid = validateCurrentStep();
         if (!isValid) {
-            Alert.alert("Hold on", "Please complete required fields before continuing.");
+            showToast({
+                message: 'Please complete required fields before continuing.'
+            });
             return;
         }
 
         // If we're on the last step (4), complete onboarding and navigate away
-        if (step >= 4) {
+        if (step === 4 || step === 5) {
             handleCompleteOnboarding();
             return;
         }
         setStep(prev => Math.min(prev + 1, 4));
     };
 
-    // Handle completion of onboarding flow
-    const handleCompleteOnboarding = () => {
-        // Collect all onboarding data
-        const onboardingData = {
-            // Step 1: Photo
-            photo: {
-                isUploaded: isImageUploaded,
-                uri: uploadedImageUri
-            },
-            // Step 2: Profile
-            profile: {
-                firstName: firstName.trim(),
-                lastName: lastName.trim(),
-                role,
-                dateOfBirth: {
-                    year: dobYear,
-                    month: dobMonth,
-                    day: dobDay
-                }
-            },
-            // Step 3: Interests
-            interests: Array.from(selectedInterests),
-            // Step 4: Location
-            location: {
-                state: selectedState,
-                area: selectedArea
+
+    /**
+     * Handle completion of onboarding flow
+     * Collects all data, calls OnBoarding API, and handles navigation
+     */
+    const handleCompleteOnboarding = async (insertDatas: OnboardingData = buildOnboardingData()) => {
+        // Prevent multiple submissions
+        if (isCompletingOnboarding) return;
+
+        setIsCompletingOnboarding(true);
+
+        try {
+            // Call OnBoarding API to save data and upload image
+            const result = await OnBoarding(insertDatas);
+
+            if (result.success) {
+                // Show success toast and navigate
+                showToast({
+                    message: result.message || 'Profile created successfully!',
+                    type: 'success',
+                    duration: 2000,
+                });
+                navigation.navigate('CommunityCommitmentScreen');
+            } else {
+                // Show error toast
+                showToast({
+                    message: result.message || 'Failed to create profile. Please try again.',
+                    type: 'danger',
+                    duration: 4000
+                });
             }
-        };
 
-        // TODO: Save onboarding data to store/API here
-        console.log("Onboarding completed successfully!", onboardingData);
-
-        // Navigate to main app or home screen
-        // You can replace 'Home' with the appropriate screen name for your main app
-        navigation.navigate('CommunityCommitmentScreen');
+        } catch (error) {
+            console.log('Onboarding completion error:', error);
+            showToast({
+                message: 'An unexpected error occurred. Please try again.',
+                type: 'danger',
+                duration: 4000
+            });
+        } finally {
+            setIsCompletingOnboarding(false);
+        }
     };
 
     // Navigate back safely; never below step 1.
     const handleBack = () => {
         setStep(prev => Math.max(prev - 1, 1));
     };
-
-    // ===== STEP VALIDATION HELPERS =====
-
-    // Validate step 1: Photo upload
-    const isPhotoStepValid = () => isImageUploaded;
-
-    // Validate step 2: Profile completion
-    const isProfileStepValid = () => {
-        return firstName.trim() && lastName.trim() && role && dobYear && dobMonth && dobDay;
-    };
-
-    // Validate step 3: At least one interest selected
-    const isInterestStepValid = () => selectedInterests.size > 0;
-
-    // Validate step 4: Location selection
-    const isLocationStepValid = () => selectedState && selectedArea;
-
     // Renders the content for the current step with centralized data and handlers.
     const renderCurrentStep = () => {
         switch (step) {
@@ -166,6 +196,7 @@ export const OnBoardingMain = ({ navigation }: OnBoardingMainProps) => {
                     />
                 );
             case 4:
+            case 5:
                 return (
                     <LocalCommunity
                         selectedState={selectedState}
@@ -182,6 +213,7 @@ export const OnBoardingMain = ({ navigation }: OnBoardingMainProps) => {
                             setIsStepValid(Boolean(selectedState && area));
                         }}
                         onValidityChange={setIsStepValid}
+                        setStep={setStep}
                     />
                 );
             default:
@@ -197,11 +229,30 @@ export const OnBoardingMain = ({ navigation }: OnBoardingMainProps) => {
             {/* Centralized bottom CTA: title and disabled state vary by step */}
             <View style={styles.ctaContainer}>
                 <Button
-                    title={step > 1 ? "Continue" : "Next"}
+                    title={
+                        isCompletingOnboarding
+                            ? "Creating Profile..."
+                            : step > 1
+                                ? "Continue"
+                                : "Next"
+                    }
                     onPress={handleNext}
-                    disabled={!isStepValid && step <= 4}
+                    disabled={(!isStepValid && step <= 5) || isCompletingOnboarding}
                 />
             </View>
+            {/* Location Request Component - Only shown on step 5 */}
+            {/* Passes complete onboarding data for console logging in NoteBottomSheet */}
+            {
+                step === 5 && (
+                    <LocationRequest
+                        step={step}
+                        setStep={setStep}
+                        showToast={showToast}
+                        onboardingData={buildOnboardingData()}
+                        handleCompleteOnboarding={handleCompleteOnboarding}
+                    />
+                )
+            }
         </View>
     );
 };

@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: aliasTokens.spacing.Medium,
     paddingBottom: aliasTokens.spacing.XLarge,
     maxHeight: '85%',
-    zIndex: 2,
+    zIndex: 200,
     elevation: 8,
   },
   handleBar: {
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     marginBottom: 36,
   },
   scrollView: {
-    maxHeight: 480,
+    maxHeight: 530,
   },
   title: {
     ...aliasTokens.typography.title.Medium,

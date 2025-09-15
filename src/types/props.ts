@@ -1,1 +1,58 @@
 export type checkEmailPropsType = 'login' | 'verify' | 'signup' | 'error';
+
+/**
+ * State data interface for state selection components
+ */
+export interface StateOption {
+    /** State abbreviation (e.g., 'CA', 'NY') */
+    code: string;
+    /** Full state name (e.g., 'California', 'New York') */
+    name: string;
+    /** Optional database ID for states fetched from database */
+    id?: number;
+}
+
+/**
+ * Database state interface for states fetched from Supabase
+ */
+export interface DatabaseState {
+    id: number;
+    code: string;
+    name: string; // Always has a name (mapped from static data or fallback)
+}
+
+
+/**
+ * Location data interface for state and city selection
+ */
+export interface LocationType {
+    state: string;
+    city: string;
+    id: number;
+}
+
+
+/**
+ * Onboarding data structure
+ */
+export interface OnboardingData {
+    photo: {
+        isUploaded: boolean;
+        uri: string | null;
+    };
+    profile: {
+        firstName: string;
+        lastName: string;
+        role: string | undefined;
+        dateOfBirth: {
+            year: number | undefined;
+            month: number | undefined;
+            day: number | undefined;
+        };
+    };
+    interests: string[];
+    location: {
+        state: string | undefined;
+        area: string | undefined;
+    };
+}

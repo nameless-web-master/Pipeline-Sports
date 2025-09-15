@@ -9,7 +9,7 @@ export type RootStackParamList = {
   Entry: undefined;
   Gateway: undefined;
   SignupWithEmailScreen: { email?: string } | undefined;
-  ResendEmailScreen: { email?: string, content?: string } | undefined;
+  ResendEmailScreen: { email?: string, password?: string, content?: string } | undefined;
   OnBoardingMain: undefined;
   CommunityCommitmentScreen: undefined;
   NotificationScreen: undefined;

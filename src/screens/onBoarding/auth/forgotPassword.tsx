@@ -46,7 +46,7 @@ const ForgotPassword = ({ navigation, route, showToast }: Props): ReactElement =
         try {
             const sent = await sendResetPasswordEmail(email);
             if (sent === null) {
-                showToast({ message: 'You have not registered yet. Please register first.', type: 'info' });
+                showToast({ message: 'You have not registered yet. Please register first.' });
                 navigation.navigate('SignupWithEmailScreen', { email });
             }
             else if (sent as boolean) {

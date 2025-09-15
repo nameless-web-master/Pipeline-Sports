@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Animated, TouchableOpacity, Modal } from 'react-native';
 import { Info, CheckCircle, XCircle } from 'lucide-react-native';
 import { aliasTokens } from '../theme/alias';
 
@@ -13,12 +13,12 @@ interface ToastProps {
   duration?: number;
 }
 
-const Toast: React.FC<ToastProps> = ({ 
-  type = 'info', 
-  message, 
-  visible, 
-  onClose, 
-  duration = 4000 
+const Toast: React.FC<ToastProps> = ({
+  type = 'info',
+  message,
+  visible,
+  onClose,
+  duration = 4000
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(100)).current;
@@ -119,33 +119,49 @@ const Toast: React.FC<ToastProps> = ({
   if (!visible) return null;
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          backgroundColor: toastStyles.backgroundColor,
-          opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }],
-        },
-      ]}
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      presentationStyle="overFullScreen"
+      statusBarTranslucent
     >
-      <TouchableOpacity 
-        style={styles.content}
-        onPress={hideToast}
-        activeOpacity={0.8}
-      >
-        <toastStyles.IconComponent 
-          size={22} 
-          color={aliasTokens.color.text.InversePrimary}
-          style={styles.icon}
-        />
-        <Text style={styles.message}>{message}</Text>
-      </TouchableOpacity>
-    </Animated.View>
+      <View style={styles.modalContainer}>
+        <Animated.View
+          style={[
+            styles.container,
+            {
+              backgroundColor: toastStyles.backgroundColor,
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <TouchableOpacity
+            style={styles.content}
+            onPress={hideToast}
+            activeOpacity={0.8}
+          >
+            <toastStyles.IconComponent
+              size={22}
+              color={aliasTokens.color.text.InversePrimary}
+              style={styles.icon}
+            />
+            <Text style={styles.message}>{message}</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'stretch',
+    backgroundColor: 'transparent',
+  },
   container: {
     position: 'absolute',
     bottom: 60,
@@ -162,7 +178,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    zIndex: 1000,
   },
   content: {
     flexDirection: 'row',
