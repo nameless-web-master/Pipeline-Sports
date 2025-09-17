@@ -2,7 +2,10 @@
   "expo": {
     "name": "pipelineSports",
     "scheme": "pipelinesports",
-    "deepLinking": true,
+    "deepLinks": [
+      "pipelineSports://",
+      "https://pipelineSports.com"
+    ],
     "platforms": [
       "ios",
       "android",
@@ -21,18 +24,26 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.pipeline.sports"
+      "bundleIdentifier": "com.pipeline.sports",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.pipeline.sports",
       "adaptiveIcon": {
         "foregroundImage": "https://dswptzhcmjnylautdeea.supabase.co/storage/v1/object/public/app-assets/Logo/Logo-small.png",
-        "backgroundColor": "#ffffff",
-        "package": "com.pipeline.sports"
+        "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "https://dswptzhcmjnylautdeea.supabase.co/storage/v1/object/public/app-assets/Logo/Logo-small.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "99a90a21-4c3c-4699-8112-ba024ae9bc98"
+      }
     }
   }
 }

@@ -1,8 +1,8 @@
 export const linking = {
-    prefixes: ['exp://192.168.145.104:8081', 'pipelinesports://'],
+    prefixes: ['https://pipelineSports.com', 'pipelineSports://'],
     config: {
         screens: {
-            Home: 'home'
+            OnBoardingMain: 'OnBoardingMain',
         }
     }
 };

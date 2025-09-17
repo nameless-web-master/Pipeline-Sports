@@ -108,10 +108,10 @@ const StateBottomSheet: React.FC<StateBottomSheetProps> = ({
                     const mappedStates = mapDatabaseStatesToStatic(result.states);
                     setStates(mappedStates);
                     console.log('Final mapped states:', mappedStates);
-                    showToast({
-                        message: 'New Location request is Success!',
-                        type: 'success'
-                    });
+                    // showToast({
+                    //     message: 'New Location request is Success!',
+                    //     type: 'success'
+                    // });
                 } else {
                     // Fallback to static states if database fetch fails
                     console.warn('Failed to fetch states from database, using static fallback:', result.error);

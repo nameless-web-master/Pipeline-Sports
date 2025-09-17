@@ -92,8 +92,15 @@ const ResendEmailScreen = ({ navigation, route, showToast }: Props): ReactElemen
                     });
                 }
             } else if (url.includes('ResetPassowrd')) {
-                showToast({ message: 'Password reset email sent.', type: 'success' });
-                navigation.navigate('ResetPassowrd');
+                try {
+                    showToast({ message: 'Password reset email sent.', type: 'success' });
+                    navigation.navigate('ResetPassowrd');
+                } catch (error: any) {
+                    showToast({
+                        message: error?.message ?? 'Failed to reset password. Please try again.',
+                        type: 'danger'
+                    });
+                }
             }
         };
 

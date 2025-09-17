@@ -1,0 +1,25 @@
+{
+  "cli": {
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "production": {
+      "distribution": "store"
+    },
+    "qa": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "API_URL": "https://staging.example.com",
+        "FEATURE_FLAG": "true"
+      }
+    },
+    "simulator": {
+      "ios": {
+        "simulator": true
+      }
+    }
+  }
+}

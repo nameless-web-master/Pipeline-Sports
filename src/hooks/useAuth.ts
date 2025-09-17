@@ -51,7 +51,7 @@ export const signUp = async (email: string, password: string) => {
             options: {
                 // This is the deep link URL that the user will be redirected to
                 // after clicking the confirmation link in their email.
-                emailRedirectTo: 'exp://192.168.145.104:8081/--/OnBoardingMain'
+                emailRedirectTo: 'pipelineSports://OnBoardingMain'
             }
         });
 
@@ -134,7 +134,7 @@ export const isAuthenticated = async () => {
 export const resetPassword = async (email: string) => {
     try {
         const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: 'https://your-app.com/reset-password', // You'll need to set this up
+            redirectTo: 'pipelineSports://ResetPassowrd', // You'll need to set this up
         });
 
         if (error) {
@@ -157,7 +157,7 @@ export const sendResetPasswordEmail = async (email: string) => {
             return null;
 
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: 'exp://192.168.145.104:8081/--/ResetPassowrd',
+            redirectTo: 'pipelineSports://ResetPassowrd',
         });
 
         return error ? error : true;
@@ -179,7 +179,7 @@ export const updatePassword = async (newPassword: string) => {
     }
 }
 
-export const sendEmailVerification = async (email: string, redirectTo: string = 'exp://192.168.145.104:8081/--/OnBoardingMain') => {
+export const sendEmailVerification = async (email: string, redirectTo: string = 'exp://192.168.145.104:8082/--/OnBoardingMain') => {
     try {
         const { data, error } = await supabase.auth.resend({
             type: 'signup',
