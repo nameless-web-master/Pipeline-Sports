@@ -22,6 +22,7 @@ export type RootStackParamList = {
     buttonTitle?: string;
     navigateTo?: keyof RootStackParamList;
   } | undefined
+  SettingsMain: undefined;
 };
 
 // Generic screen props type (includes navigation and route)
@@ -43,3 +44,4 @@ export type Login = ScreenProps<'Login'>;
 export type ForgotPassword = ScreenProps<'ForgotPassword'>;
 export type ResetPassowrd = ScreenProps<'ResetPassowrd'>;
 export type NotePage = ScreenProps<'NotePage'>;
+export type SettingsMain = ScreenProps<'SettingsMain'>;

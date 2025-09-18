@@ -162,7 +162,7 @@ export const designTokens = {
     buttonText: {
       Medium: {
         fontFamily: 'Poppins_600SemiBold',
-        fontSize: 15,
+        fontSize: 14,
         lineHeight: 26,
         letterSpacing: 0,
       },

@@ -58,43 +58,46 @@ export const EntryTemplate = ({ Nr, setNr, navigation }: EntryTemplateProps): Re
                             source={{ uri: ImagesAssets(EntryList[Nr].image) }}
                             accessibilityLabel={`Entry${Nr}`}
                             style={styles.mainImage}
-                            resizeMode="cover"
+                            resizeMode="stretch"
                         />
                     </FadeSlideIn>
                     {/* Bottom gradient overlay for text readability */}
                     <BottomGradient height={180} />
                 </View>
             </View>
-            
+
             {/* Content section with logo, text, and controls */}
             <View style={{ padding: aliasTokens.spacing.Large }}>
                 {/* Brand header */}
                 <View style={aliasTokens.basic.dFlexLeft}>
-                    <LogoImage />
+                    <LogoImage style={{
+                        width: 32,
+                        height: 32
+                    }} />
                     <Text style={styles.titleText}>Pipeline</Text>
                 </View>
-                
+
                 {/* Slide content text */}
                 <Text style={styles.mainText}>{EntryList[Nr].content}</Text>
-                
+
                 {/* Navigation controls */}
                 <View style={aliasTokens.basic.dFlexBetween}>
                     {/* Progress indicators */}
                     <Dots total={EntryList.length} count={Nr} />
-                    
+
                     {/* Action buttons */}
                     <View style={aliasTokens.basic.dFlexBetween}>
-                        <Button 
-                            title="Skip" 
-                            variant="dark" 
-                            style={styles.defaultButton} 
-                            onPress={() => navigation.navigate('Gateway')} 
+                        <Button
+                            title="Skip"
+                            variant="dark"
+                            style={styles.defaultButton}
+                            onPress={() => navigation.navigate('Gateway')}
                         />
-                        <Button 
-                            title={isLastSlide ? "Login" : "Next"} 
-                            variant="primary" 
-                            style={styles.defaultButton} 
-                            onPress={() => isLastSlide ? navigation.navigate('Gateway') : setNr(Nr + 1)} 
+                        <Button
+                            title={isLastSlide ? "Login" : "Next"}
+                            variant="primary"
+                            style={styles.defaultButton}
+                            onPress={() => isLastSlide ? navigation.navigate('Gateway') : setNr(Nr + 1)}
                         />
                     </View>
                 </View>
@@ -110,14 +113,14 @@ const styles = StyleSheet.create({
         backgroundColor: aliasTokens.color.background.Inverse,
         flex: 1
     },
-    
+
     // Brand title styling
     titleText: {
         ...aliasTokens.typography.entryText,
         color: aliasTokens.color.text.InversePrimary,
         marginLeft: aliasTokens.spacing.XSmall
     },
-    
+
     // Main content text styling
     mainText: {
         ...aliasTokens.typography.display.Medium,
@@ -125,7 +128,7 @@ const styles = StyleSheet.create({
         marginTop: aliasTokens.spacing.Small,
         marginBottom: aliasTokens.spacing.XXLarge
     },
-    
+
     // Navigation button styling
     defaultButton: {
         width: 100,
@@ -133,7 +136,7 @@ const styles = StyleSheet.create({
         borderRadius: aliasTokens.borderRadius.Default,
         marginLeft: aliasTokens.spacing.Small
     },
-    
+
     // Image container with padding for non-first slides
     mainImageContainer: {
         flex: 1,
@@ -141,12 +144,12 @@ const styles = StyleSheet.create({
         paddingRight: 40,
         paddingTop: 80,
     },
-    
+
     // Full-size image styling
     mainImage: {
-        ...aliasTokens.sizes.allFullSize
+        ...aliasTokens.sizes.allFullSize,
     },
-    
+
     // Image wrapper with relative positioning
     imageWrapper: {
         position: "relative",

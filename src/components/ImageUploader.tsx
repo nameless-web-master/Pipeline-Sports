@@ -68,7 +68,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         mediaTypes: 'images',
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.8,
+        quality: 1,
+        shape: 'oval',
       });
 
       console.log('ImageUploader: Image picker result:', {
@@ -124,6 +125,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
+        shape: 'oval'
+
       });
 
       console.log('ImageUploader: Camera result:', {

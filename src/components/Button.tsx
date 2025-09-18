@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    ...aliasTokens.typography.buttonText.Default,
+    ...aliasTokens.typography.buttonText.Medium,
     textAlign: 'center',
   },
 });

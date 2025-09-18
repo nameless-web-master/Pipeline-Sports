@@ -103,7 +103,10 @@ const Gateway = ({ navigation, showToast }: GatewayProps): ReactElement => {
         ]}>
             {/* Header section with logo and welcome text */}
             <View style={styles.header}>
-                <LogoImage />
+                <LogoImage style={{
+                    width: 50,
+                    height: 50
+                }} />
                 <Text style={styles.title}>Welcome to Pipeline!</Text>
                 <Text style={styles.subtitle}>Get started by logging in.</Text>
             </View>
