@@ -179,7 +179,7 @@ export const updatePassword = async (newPassword: string) => {
     }
 }
 
-export const sendEmailVerification = async (email: string, redirectTo: string = 'exp://192.168.145.104:8082/--/OnBoardingMain') => {
+export const sendEmailVerification = async (email: string, redirectTo: string = 'pipelineSports://OnBoardingMain') => {
     try {
         const { data, error } = await supabase.auth.resend({
             type: 'signup',

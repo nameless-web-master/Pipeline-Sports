@@ -162,7 +162,7 @@ export const saveLocationToDB = async (locationData: {
     userId: string;
 }) => {
     try {
-        const {  city, stateId, userId } = locationData;
+        const { city, stateId, userId } = locationData;
 
         // Validate required data
         if (!city?.trim() || !stateId || !userId) {
@@ -172,17 +172,36 @@ export const saveLocationToDB = async (locationData: {
             };
         }
 
-        // Insert location request into database
-        const { error: insertError } = await supabase
+        // Insert location into the basic table in the database
+        const { data, error: insertError } = await supabase
             .from('local_area')
             .insert([
                 {
                     content: city.trim(),
                     match: stateId,
                 }
-            ]);
+            ])
+            .select('id');
 
         if (insertError) {
+            console.log('Location request insert error:', insertError);
+            return {
+                success: false,
+                message: 'Failed to save location request. Please try again.'
+            };
+        }
+
+        // Insert Location Request into special table in database
+        const { error: locationRequestError } = await supabase
+            .from('location_requests')
+            .insert([
+                {
+                    city: data[0].id,
+                    state: stateId
+                }
+            ]);
+
+        if (locationRequestError) {
             console.log('Location request insert error:', insertError);
             return {
                 success: false,

@@ -63,7 +63,7 @@ const Input: React.FC<InputProps> = ({ label, value, onChangeText, placeholder, 
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={aliasTokens.input.PlaceHolder}
+          placeholderTextColor={aliasTokens.color.text.Tertiary}
           editable={!disabled}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -92,11 +92,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center', // Center the text vertically
   },
   input: {
-    paddingHorizontal: aliasTokens.spacing.Medium,
+    paddingHorizontal: aliasTokens.spacing.Small,
     height: '100%', // Take full height of container
     ...aliasTokens.typography.inputText.Medium,
     color: aliasTokens.color.text.Primary,
     textAlignVertical: 'center', // Center text vertically
+    includeFontPadding: false
   },
   inputEnabled: {
     borderRadius: aliasTokens.borderRadius.Default,

@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
         backgroundColor: aliasTokens.button.ghost.fillPressed,
     },
     socialText: {
-        ...aliasTokens.typography.buttonText.Default,
+        ...aliasTokens.typography.buttonText.Medium,
         color: aliasTokens.color.text.Primary,
     },
 });

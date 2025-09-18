@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: aliasTokens.spacing.Medium,
+    paddingHorizontal: aliasTokens.spacing.Small,
   },
   dropdownText: {
     ...aliasTokens.typography.inputText.Medium,

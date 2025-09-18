@@ -12,6 +12,7 @@ import { fetchStatesFromDB, saveLocationToDB } from '../hooks/useProfile';
 import { LocationType } from '../types/props';
 import { getCurrentSession } from '../hooks/useSession';
 import type { ShowToast } from '../types/toast';
+import { LoadingStates } from './Loading';
 
 /**
  * Props for the StateBottomSheet component
@@ -72,7 +73,7 @@ const StateBottomSheet: React.FC<StateBottomSheetProps> = ({
         return dbStates.map(dbState => {
             const staticState = US_STATES.find(staticState => staticState.code === dbState.code);
             if (staticState) {
-                console.log(`Mapped ${dbState.code} -> ${staticState.name}`);
+                // console.log(`Mapped ${dbState.code} -> ${staticState.name}`);
                 return {
                     id: dbState.id,
                     code: dbState.code,
@@ -80,7 +81,7 @@ const StateBottomSheet: React.FC<StateBottomSheetProps> = ({
                 };
             } else {
                 let toastContent = `No static state found for code: ${dbState.code}, using database name: ${dbState.name || 'Unknown'}`;
-                console.log(toastContent);
+                // console.log(toastContent);
                 showToast({
                     message: toastContent,
                     type: 'danger'
@@ -254,14 +255,6 @@ const StateBottomSheet: React.FC<StateBottomSheetProps> = ({
         value: state.name
     }));
 
-    // Loading component for states
-    const LoadingStatesComponent = () => (
-        <View style={styles.loadingContainer}>
-            <ActivityIndicator size="small" color={aliasTokens.color.brand.Primary} />
-            <Text style={styles.loadingText}>Loading states...</Text>
-        </View>
-    );
-
     return (
         <>
             {/* Main Form Bottom Sheet */}
@@ -276,7 +269,11 @@ const StateBottomSheet: React.FC<StateBottomSheetProps> = ({
                 <View style={styles.formContainer}>
                     {/* Loading States Component */}
                     {initialLoad && loading ? (
-                        <LoadingStatesComponent />
+                        <View style={{
+                            height: 100
+                        }}>
+                            <LoadingStates />
+                        </View>
                     ) : (
                         <>
                             {/* State Dropdown */}
@@ -349,18 +346,6 @@ const styles = StyleSheet.create({
     },
     inputField: {
         marginBottom: aliasTokens.spacing.Medium,
-    },
-    loadingContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: aliasTokens.spacing.Large,
-        paddingHorizontal: aliasTokens.spacing.Medium,
-    },
-    loadingText: {
-        marginLeft: aliasTokens.spacing.Small,
-        fontSize: 14,
-        color: aliasTokens.color.text.Secondary,
     },
     errorContainer: {
         marginTop: aliasTokens.spacing.Small,

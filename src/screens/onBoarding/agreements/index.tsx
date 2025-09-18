@@ -38,7 +38,7 @@ const CommunityCommitmentScreen: React.FC<CommunityCommitmentScreenProps> = ({ n
             >
                 {/* Logo Section */}
                 <View style={styles.logoContainer}>
-                    <LogoImage style={{ width: 29, height: 29 }} />
+                    <LogoImage />
                 </View>
 
                 {/* Title */}

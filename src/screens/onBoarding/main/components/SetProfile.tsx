@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
         borderWidth: aliasTokens.borderWidth.Default,
         borderColor: aliasTokens.input.BorderEnabled,
         justifyContent: 'center',
-        paddingHorizontal: aliasTokens.spacing.Medium,
+        paddingHorizontal: aliasTokens.spacing.Small,
     },
     dobText: {
         ...aliasTokens.typography.inputText.Medium,

@@ -11,14 +11,14 @@ interface PasswordInputProps extends Omit<TextInputProps, 'secureTextEntry'> {
   disabled?: boolean;
 }
 
-const PasswordInput: React.FC<PasswordInputProps> = ({ 
-  label, 
-  value, 
-  onChangeText, 
-  placeholder, 
-  error = false, 
-  disabled = false, 
-  ...props 
+const PasswordInput: React.FC<PasswordInputProps> = ({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  error = false,
+  disabled = false,
+  ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -74,7 +74,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
           onBlur={handleBlur}
           {...props}
         />
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.toggleButton}
           onPress={handleTogglePassword}
           disabled={disabled}
@@ -107,14 +107,15 @@ const styles = StyleSheet.create({
     backgroundColor: aliasTokens.input.FillEnabled,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingLeft:12
+    paddingLeft: 12
   },
   input: {
     flex: 1,
-    paddingHorizontal: aliasTokens.spacing.Medium,
+    // paddingHorizontal: aliasTokens.spacing.Medium,
     height: aliasTokens.sizes.Medium,
     ...aliasTokens.typography.inputText.Medium,
     color: aliasTokens.color.text.Primary,
+    includeFontPadding: false
   },
   inputEnabled: {
     backgroundColor: 'transparent',

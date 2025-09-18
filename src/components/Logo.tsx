@@ -1,6 +1,7 @@
 import React from "react";
-import { Image, ImageStyle, StyleProp, ViewStyle } from "react-native";
+import { Image, ImageStyle, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import { ImagesAssets } from "../assets";
+import { aliasTokens } from "../theme/alias";
 
 /**
  * Logo component for general use throughout the app
@@ -14,12 +15,18 @@ interface LogoImageProps {
 }
 
 export const LogoImage: React.FC<LogoImageProps> = ({ style }): React.JSX.Element => (
-    <Image
-        source={{ uri: ImagesAssets('Logo') }}
-        accessibilityLabel="Pipeline logo"
-        style={style ? style : { width: 32, height: 32 }}
-        resizeMode="contain"
-    />
+    <View style={[
+        style ? style : {
+            width: 50, height: 50,
+        }, styles.smallLogo
+    ]}>
+        <Image
+            source={{ uri: ImagesAssets('HomeLogo') }}
+            accessibilityLabel="Pipeline logo"
+            style={{ width: "60%", height: "60%" }}
+            resizeMode="contain"
+        />
+    </View>
 );
 
 /**
@@ -37,3 +44,11 @@ export const HomeLogo = ({ style }: { style?: ImageStyle }): React.JSX.Element =
         resizeMode="contain"
     />
 );
+
+const styles = StyleSheet.create({
+    smallLogo: {
+        ...aliasTokens.basic.dFlexCenter,
+        backgroundColor: aliasTokens.color.background.Home,
+        borderRadius: "30%"
+    }
+});

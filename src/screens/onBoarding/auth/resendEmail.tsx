@@ -128,7 +128,7 @@ const ResendEmailScreen = ({ navigation, route, showToast }: Props): ReactElemen
                 {/* Detailed instruction with tappable email */}
                 <Text style={styles.subtitle}>
                     {'Please check your email at\n'}
-                    <Text style={styles.emailLink} onPress={handleOpenMail} accessibilityRole="link">
+                    <Text style={styles.emailLink} >
                         {email}
                     </Text>{' '}
                     {contentMessage}.
@@ -140,6 +140,16 @@ const ResendEmailScreen = ({ navigation, route, showToast }: Props): ReactElemen
                     variant="outline"
                     onPress={handleResendEmail}
                     style={styles.cta}
+                />
+                <Button
+                    title="Open Email"
+                    variant="tertiary"
+                    onPress={handleOpenMail}
+                    style={{
+                        marginTop: aliasTokens.spacing.Medium,
+                        width: aliasTokens.sizes.full
+                    }}
+                    textStyle={{ color: aliasTokens.color.text.Primary }}
                 />
             </View>
         </View>
@@ -190,7 +200,7 @@ const styles = StyleSheet.create({
 
     // Call-to-action button styling
     cta: {
-        width: '100%',
+        width: aliasTokens.sizes.full,
         marginTop: aliasTokens.spacing.XLarge,
     },
 });
