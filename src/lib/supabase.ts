@@ -15,6 +15,20 @@ export const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e
 // Supabase client instance (no need for a separate `initialize` function)
 export const supabase = createClient(
     SUPABASE_URL as string,
+    SUPABASE_ANON_KEY as string,
+    {
+        auth: {
+            storage: AsyncStorage, // Use AsyncStorage for session persistence
+            autoRefreshToken: true,
+            persistSession: true,
+            // This property tells the client to look for a session in the URL
+            detectSessionInUrl: true,
+        },
+    }
+);
+
+export const supabaseAdmin = createClient(
+    SUPABASE_URL as string,
     SUPABASE_SERVICE_ROLE_KEY as string,
     {
         auth: {

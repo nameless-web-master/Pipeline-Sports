@@ -8,7 +8,7 @@ import {
   Platform
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Plus, User } from 'lucide-react-native';
+import { Plus, Pencil } from 'lucide-react-native';
 import { aliasTokens } from '../theme/alias';
 
 interface ImageUploaderProps {
@@ -192,10 +192,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       {/* Add Photo Button */}
       <View style={styles.addButtonContainer}>
         <View style={styles.addButton}>
-          <Plus
-            size={20}
-            color={aliasTokens.color.text.InversePrimary}
-          />
+          {
+            initialImageUri ?
+              <Pencil
+                size={18}
+                color={aliasTokens.color.text.InversePrimary}
+              />
+              : <Plus
+                size={18}
+                color={aliasTokens.color.text.InversePrimary}
+              />
+
+          }
         </View>
       </View>
     </TouchableOpacity>

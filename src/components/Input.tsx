@@ -97,7 +97,9 @@ const styles = StyleSheet.create({
     ...aliasTokens.typography.inputText.Medium,
     color: aliasTokens.color.text.Primary,
     textAlignVertical: 'center', // Center text vertically
-    includeFontPadding: false
+    includeFontPadding: false,
+    fontSize: 15,
+    lineHeight: 26
   },
   inputEnabled: {
     borderRadius: aliasTokens.borderRadius.Default,

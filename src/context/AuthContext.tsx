@@ -18,32 +18,34 @@ export function useAuth() {
 }
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
-    const [user, setUser] = useState<User | null>()
-    const [session, setSession] = useState<Session | null>(null)
-    const [initialized, setInitialized] = useState<boolean>(false)
+    const [user, setUser] = useState<User | null>();
+    const [session, setSession] = useState<Session | null>(null);
+    const [initialized, setInitialized] = useState<boolean>(false);
 
     useEffect(() => {
         // Listen for changes to authentication state
         const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
             setSession(session)
-            setUser(session ? session.user : null)
+
+            // Only set user if there's a valid session AND user is email verified
+            // For signup with email verification, user exists but session is null until email is verified
+            if (session?.user) {
+                setUser(session.user)
+            } else {
+                setUser(null)
+            }
+
             setInitialized(true)
         })
         return () => {
             data.subscription.unsubscribe()
         }
-    }, [])
-
-    // Log out the user
-    const signOut = async () => {
-        await supabase.auth.signOut()
-    }
+    }, []);
 
     const value = {
         user,
         session,
         initialized,
-        signOut,
     }
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

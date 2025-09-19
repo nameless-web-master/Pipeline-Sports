@@ -10,33 +10,15 @@ import validateEmail from '../../../utils/validateEmail';
 import type { SignupWithEmailScreen as SignupType } from '../../../types/navigation';
 import type { ShowToast } from '../../../types/toast';
 import LegalText from '../../../components/LegalText';
-import { signInWithPassword, signUp } from '../../../hooks/useAuth';
+import PasswordRules from '../../../components/PasswordRules';
+import { signUp } from '../../../hooks/useAuth';
 
 // Password validation regex patterns
 const LETTER_NUMBER_REGEX = /[A-Za-z]/;
 const DIGIT_REGEX = /\d/;
 const SPECIAL_CHAR_REGEX = /[^A-Za-z0-9]/;
 
-/**
- * Individual password rule indicator component
- * Shows a checkmark or empty circle with rule text
- */
-const PasswordRule = memo(({ met, label }: { met: boolean; label: string }) => {
-  return (
-    <View style={styles.ruleRow}>
-      <MaterialIcons
-        name={met ? 'task-alt' : 'radio-button-unchecked'}
-        size={18}
-        color={met ? aliasTokens.color.semantic.success.Default : aliasTokens.color.text.Tertiary}
-        style={{ marginRight: aliasTokens.spacing.XSmall }}
-
-
-      />
-      <Text style={[styles.ruleText, met ? styles.ruleTextMet : styles.ruleTextUnmet]}>{label}</Text>
-    </View>
-  );
-});
-PasswordRule.displayName = 'PasswordRule';
+// Removed local PasswordRule in favor of shared PasswordRules component
 
 /**
  * Signup screen with email and password validation
@@ -140,12 +122,11 @@ const SignupWithEmailScreen: React.FC<SignupProps> = ({ navigation, route, showT
         />
 
         {/* Password validation rules */}
-        <View>
-          <Text style={styles.rulesHeader}>Your password must have:</Text>
-          <PasswordRule met={passHasMin} label="8 characters minimum" />
-          <PasswordRule met={passHasLetterAndNumber} label="1 letter and 1 number" />
-          <PasswordRule met={passHasSpecial} label="1 special character (Example: # ? $ & @)" />
-        </View>
+        <PasswordRules
+          hasMinLength={passHasMin}
+          hasLetterAndNumber={passHasLetterAndNumber}
+          hasSpecialChar={passHasSpecial}
+        />
 
         {/* Submit button */}
         <View style={styles.spacerLarge} />
@@ -187,46 +168,7 @@ const styles = StyleSheet.create({
     height: aliasTokens.spacing.Medium,
   },
 
-  // Password validation rules styles
-  rulesHeader: {
-    ...aliasTokens.typography.labelText.Small,
-    color: aliasTokens.color.text.Black,
-    marginBottom: aliasTokens.spacing.XXSmall,
-  },
-  ruleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: aliasTokens.spacing.XXSmall,
-  },
-
-  // Unused rule icon styles (kept for potential future use)
-  ruleIcon: {
-    width: 16,
-    height: 16,
-    borderRadius: aliasTokens.borderRadius.Small,
-    marginRight: aliasTokens.spacing.XSmall,
-    borderWidth: 2,
-  },
-  ruleIconMet: {
-    backgroundColor: aliasTokens.color.semantic.success.Light,
-    borderColor: aliasTokens.color.semantic.success.Default,
-  },
-  ruleIconUnmet: {
-    backgroundColor: aliasTokens.color.background.Primary,
-    borderColor: aliasTokens.color.border.Light,
-  },
-
-  // Rule text styles
-  ruleText: {
-    ...aliasTokens.typography.body.XSmall,
-    color: aliasTokens.color.text.Tertiary
-  },
-  ruleTextMet: {
-    color: aliasTokens.color.text.Success,
-  },
-  ruleTextUnmet: {
-    color: aliasTokens.color.text.Secondary,
-  },
+  // Password validation rules styles moved into shared component
 
   // Call-to-action button styles
   cta: {

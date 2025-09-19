@@ -1,28 +1,14 @@
 import React, { useState, ReactNode } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Bell, Search, X } from 'lucide-react-native';
 import { aliasTokens } from '../theme/alias';
+import { LogoImage } from './Logo';
+import { AppHeaderProps } from '../types/props';
 
-interface AppHeaderProps {
-  // Common props
-  variant?: 'primary' | 'secondary' | 'search';
-  
-  // Primary variant props
-  onNotificationPress?: () => void;
-  
-  // Secondary variant props
-  title?: string;
-  leftComponent?: ReactNode;
-  rightComponent?: ReactNode;
-  
-  // Search variant props
-  searchPlaceholder?: string;
-  onSearchChange?: (text: string) => void;
-  searchValue?: string;
-}
 
-const AppHeader: React.FC<AppHeaderProps> = ({ 
+
+const AppHeader: React.FC<AppHeaderProps> = ({
   variant = 'primary',
   onNotificationPress,
   title,
@@ -50,8 +36,8 @@ const AppHeader: React.FC<AppHeaderProps> = ({
       <SafeAreaView style={styles.searchContainer} edges={['top']}>
         <View style={styles.searchContent}>
           <View style={styles.searchInputContainer}>
-            <Search 
-              size={24} 
+            <Search
+              size={24}
               color={aliasTokens.color.text.Primary}
               strokeWidth={2}
             />
@@ -64,8 +50,8 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             />
             {localSearchValue.length > 0 && (
               <TouchableOpacity onPress={clearSearch} activeOpacity={0.7}>
-                <X 
-                  size={24} 
+                <X
+                  size={24}
                   color={aliasTokens.color.text.Primary}
                   strokeWidth={2}
                 />
@@ -107,24 +93,21 @@ const AppHeader: React.FC<AppHeaderProps> = ({
       <View style={styles.primaryContent}>
         {/* Logo and Title Section */}
         <View style={styles.logoAndTitle}>
-          <View style={styles.logoContainer}>
-            <Image 
-              source={require('../../assets/Travelball-Logo.png')}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={styles.primaryTitle}>Travelball</Text>
+          <LogoImage style={{
+            width: 32,
+            height: 32
+          }} />
+          <Text style={styles.primaryTitle}>Pipeline</Text>
         </View>
 
         {/* Notification Icon */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.notificationButton}
           onPress={onNotificationPress}
           activeOpacity={0.7}
         >
-          <Bell 
-            size={24} 
+          <Bell
+            size={24}
             color={aliasTokens.color.text.InversePrimary}
             strokeWidth={2}
           />
@@ -144,31 +127,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: aliasTokens.spacing.Medium,
-    paddingTop: aliasTokens.spacing.Small,
-    paddingBottom: aliasTokens.spacing.XSmall,
+    paddingTop: aliasTokens.spacing.Large,
+    paddingBottom: aliasTokens.spacing.Small,
   },
   logoAndTitle: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: aliasTokens.spacing.XSmall,
   },
-  logoContainer: {
-    width: aliasTokens.sizes.XSmall,
-    height: aliasTokens.sizes.XSmall,
-    backgroundColor: aliasTokens.color.brand.Primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    borderRadius: 11.2,
-  },
-  logo: {
-    width: aliasTokens.sizes.XSmall,
-    height: aliasTokens.sizes.XSmall,
-    borderRadius: 12,
-  },
   primaryTitle: {
-    ...aliasTokens.typography.title.Small,
+    ...aliasTokens.typography.labelText.Medium,
     color: aliasTokens.color.text.InversePrimary,
+    fontSize: 16
   },
   notificationButton: {
     width: aliasTokens.sizes.Medium,
@@ -186,9 +156,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: aliasTokens.spacing.Medium,
+    paddingHorizontal: aliasTokens.spacing.Small,
     paddingTop: aliasTokens.spacing.Medium,
-    paddingBottom: aliasTokens.spacing.XSmall,
+    paddingBottom: aliasTokens.spacing.Small,
   },
   leftSection: {
     width: aliasTokens.sizes.Small,
@@ -209,8 +179,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   secondaryTitle: {
-    ...aliasTokens.typography.title.Small,
+    ...aliasTokens.typography.labelText.Default,
     color: aliasTokens.color.text.InversePrimary,
+    fontSize: 15,
+    verticalAlign: 'bottom'
   },
 
   // Search variant styles

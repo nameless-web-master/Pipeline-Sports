@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { supabase, supabaseAdmin } from "../lib/supabase";
 import { AuthApiError } from "@supabase/supabase-js";
 
 // Import Types of several Variables
@@ -205,12 +205,12 @@ export const sendEmailVerification = async (email: string, redirectTo: string = 
  * - 'signup' → user does not exist
  * - 'error'  → unexpected failure
  *
- * Note: Uses admin.listUsers then filters client-side. For large userbases,
- * consider server-side filtering via your backend for efficiency/security.
+ * Note: This approach tries to sign in to check if the email exists and is verified.
+ * For production, consider implementing a server-side endpoint.
  */
 export const checkEmailExist = async (email: string): Promise<checkEmailPropsType> => {
     try {
-        const { data: { users }, error } = await supabase.auth.admin.listUsers();
+        const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers();
         if (error) throw error;
 
         const userExists = users.filter(user => user.email === email);

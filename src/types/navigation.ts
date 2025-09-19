@@ -8,6 +8,8 @@ export type RootStackParamList = {
   OnBoarding: undefined;
   Entry: undefined;
   Gateway: undefined;
+  UserInformation: undefined;
+  LocationSetting: undefined;
   SignupWithEmailScreen: { email?: string } | undefined;
   ResendEmailScreen: { email?: string, password?: string, content?: string } | undefined;
   OnBoardingMain: undefined;
@@ -16,6 +18,7 @@ export type RootStackParamList = {
   Login: { email?: string } | undefined;
   ForgotPassword: { email?: string } | undefined;
   ResetPassowrd: undefined;
+  PasswordHandle: undefined;
   NotePage: {
     title?: string;
     content?: string;

@@ -315,3 +315,38 @@ export const OnBoarding = async (data: any) => {
         };
     }
 }
+
+
+/**
+ * Get User profile
+ * @param Id - user id 
+ * @returns Promise with success status, message and data
+ */
+export const getUserProfile = async (userid: string) => {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', userid);
+
+        if (error) {
+            console.log('Database insert error:', error);
+            return {
+                success: false,
+                message: 'Getting User Profile Error'
+            };
+        }
+
+        return {
+            success: true,
+            message: 'Getting User Profile with ID is success'
+        };
+
+    } catch (error) {
+        console.log('Getting User Profile with userid:', error);
+        return {
+            success: false,
+            message: 'An unexpected error occurred. Please try again.'
+        };
+    }
+}

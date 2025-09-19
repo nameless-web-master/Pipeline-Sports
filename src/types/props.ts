@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export type checkEmailPropsType = 'login' | 'verify' | 'signup' | 'error';
 
 /**
@@ -55,4 +57,31 @@ export interface OnboardingData {
         state: string | undefined;
         area: string | undefined;
     };
+}
+
+/**
+ * App Navigation Props Data type
+ */
+
+export interface AppHeaderProps {
+    // Common props
+    variant?: 'primary' | 'secondary' | 'search';
+
+    // Primary variant props
+    onNotificationPress?: () => void;
+
+    // Secondary variant props
+    title?: string;
+    leftComponent?: ReactNode;
+    rightComponent?: ReactNode;
+
+    // Search variant props
+    searchPlaceholder?: string;
+    onSearchChange?: (text: string) => void;
+    searchValue?: string;
+}
+
+export interface AppNavigationData {
+    appHeader: AppHeaderProps
+    appBar: boolean
 }

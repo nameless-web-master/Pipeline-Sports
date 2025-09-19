@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     borderRadius: aliasTokens.borderRadius.Default,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: aliasTokens.spacing.Large,
+    // paddingHorizontal: aliasTokens.spacing.Large,
     flexDirection: 'row',
   },
   pressable: {

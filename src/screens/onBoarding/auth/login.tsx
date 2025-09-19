@@ -55,8 +55,10 @@ const Login = ({ navigation, route, showToast }: LoginProps): ReactElement => {
 
             // console.log(signInResult);
 
-            if (signInResult)
+            if (signInResult) {
                 showToast({ message: "Welcome Back", type: 'success' });
+                navigation.navigate('SettingsMain');
+            }
             else throw Error;
         } catch (err) {
             showToast({ message: 'Invalid login credentials', type: 'danger' });
