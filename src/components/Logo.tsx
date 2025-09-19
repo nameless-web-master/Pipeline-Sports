@@ -15,13 +15,15 @@ interface LogoImageProps {
 }
 
 export const LogoImage: React.FC<LogoImageProps> = ({ style }): React.JSX.Element => (
-    <View style={[
-        style ? style : {
-            width: 50, height: 50,
-        }, styles.smallLogo
-    ]}>
+    <View
+        style={[
+            style ? style : {
+                width: 50, height: 50,
+            }, styles.smallLogo
+        ]}
+    >
         <Image
-            source={{ uri: ImagesAssets('HomeLogo') }}
+            source={{ uri: ImagesAssets('Logo') }}
             accessibilityLabel="Pipeline logo"
             style={{ width: "60%", height: "60%" }}
             resizeMode="contain"
@@ -38,9 +40,9 @@ export const LogoImage: React.FC<LogoImageProps> = ({ style }): React.JSX.Elemen
  */
 export const HomeLogo = ({ style }: { style?: ImageStyle }): React.JSX.Element => (
     <Image
-        source={{ uri: ImagesAssets('HomeLogo') }}
+        source={{ uri: ImagesAssets('Logo') }}
         accessibilityLabel="Pipeline home logo"
-        style={[{ width: 120, height: 100 }, style]}
+        style={[{ width: 120, height: 120 }, style]}
         resizeMode="contain"
     />
 );
@@ -49,6 +51,6 @@ const styles = StyleSheet.create({
     smallLogo: {
         ...aliasTokens.basic.dFlexCenter,
         backgroundColor: aliasTokens.color.background.Home,
-        borderRadius: "30%"
+        borderRadius: "30%",
     }
 });

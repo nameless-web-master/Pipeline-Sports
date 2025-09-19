@@ -1,7 +1,7 @@
-import React, { useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
-import { Home, Globe, CircleUserRound } from 'lucide-react-native';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useRef, useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native';
+import { Home, BookOpen, Presentation, CircleUserRound } from 'lucide-react-native';
+import { aliasTokens } from '../theme/alias';
 
 interface AppBarProps {
   activeTab: string;
@@ -16,23 +16,36 @@ interface TabItem {
 }
 
 const AppBar: React.FC<AppBarProps> = ({ activeTab, onTabPress }) => {
-  const { user } = useAuth();
-  
   // Animation refs for each tab
   const homeScale = useRef(new Animated.Value(1)).current;
-  const globeScale = useRef(new Animated.Value(1)).current;
+  const directoryScale = useRef(new Animated.Value(1)).current;
+  const boardScale = useRef(new Animated.Value(1)).current;
   const profileScale = useRef(new Animated.Value(1)).current;
-  
+  const [borderLocation, setBorderLocation] = useState(0);
+  const borderLeft = useRef(new Animated.Value(0)).current;
+
   // Reset all animations when activeTab changes
   useEffect(() => {
     // Reset all scales to 1
     Animated.parallel([
       Animated.timing(homeScale, { toValue: 1, duration: 100, useNativeDriver: true }),
-      Animated.timing(globeScale, { toValue: 1, duration: 100, useNativeDriver: true }),
+      Animated.timing(directoryScale, { toValue: 1, duration: 100, useNativeDriver: true }),
+      Animated.timing(boardScale, { toValue: 1, duration: 100, useNativeDriver: true }),
       Animated.timing(profileScale, { toValue: 1, duration: 100, useNativeDriver: true }),
     ]).start();
-  }, [activeTab, homeScale, globeScale, profileScale]);
+  }, [activeTab, homeScale, directoryScale, boardScale, profileScale]);
 
+  useEffect(() => {
+    const Cnt = tabs.findIndex((_itm, _idx) => _itm.name === activeTab);
+    const targetLeft = Cnt * 74;
+    setBorderLocation(targetLeft);
+    Animated.timing(borderLeft, {
+      toValue: targetLeft,
+      duration: 220,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: false,
+    }).start();
+  }, [activeTab, borderLeft])
 
 
   const tabs: TabItem[] = [
@@ -40,26 +53,33 @@ const AppBar: React.FC<AppBarProps> = ({ activeTab, onTabPress }) => {
       name: 'home',
       label: 'Home',
       icon: <Home size={24} color={activeTab === 'home' ? '#1660f2' : '#0f161a'} />,
-      showLabel: true
+      showLabel: true,
     },
     {
-      name: 'globe',
-      label: 'Events',
-      icon: <Globe size={24} color={activeTab === 'globe' ? '#1660f2' : '#0f161a'} />,
-      showLabel: true
+      name: 'directory',
+      label: 'Directory',
+      icon: <BookOpen size={24} color={activeTab === 'directory' ? '#1660f2' : '#0f161a'} />,
+      showLabel: true,
+    },
+    {
+      name: 'board',
+      label: 'Board',
+      icon: <Presentation size={24} color={activeTab === 'board' ? '#1660f2' : '#0f161a'} />,
+      showLabel: true,
     },
     {
       name: 'profile',
       label: 'Account',
       icon: <CircleUserRound size={24} color={activeTab === 'profile' ? '#1660f2' : '#0f161a'} />,
-      showLabel: true
+      showLabel: true,
     }
   ];
 
   const getTabScale = (tabName: string) => {
     switch (tabName) {
       case 'home': return homeScale;
-      case 'globe': return globeScale;
+      case 'directory': return directoryScale;
+      case 'board': return boardScale;
       case 'profile': return profileScale;
       default: return homeScale;
     }
@@ -67,7 +87,7 @@ const AppBar: React.FC<AppBarProps> = ({ activeTab, onTabPress }) => {
 
   const handleTabPress = (tabName: string) => {
     const scale = getTabScale(tabName);
-    
+
     // Quick scale animation for tactile feedback
     Animated.sequence([
       Animated.timing(scale, {
@@ -81,7 +101,7 @@ const AppBar: React.FC<AppBarProps> = ({ activeTab, onTabPress }) => {
         useNativeDriver: true,
       }),
     ]).start();
-    
+
     // Handle tab navigation
     onTabPress(tabName);
   };
@@ -89,6 +109,7 @@ const AppBar: React.FC<AppBarProps> = ({ activeTab, onTabPress }) => {
   return (
     <View style={styles.container}>
       <View style={styles.tabsContainer}>
+        <Animated.View style={[styles.topBorder, { left: borderLeft }]} />
         {tabs.map((tab) => {
           const isActive = activeTab === tab.name;
           const scale = getTabScale(tab.name);
@@ -100,7 +121,7 @@ const AppBar: React.FC<AppBarProps> = ({ activeTab, onTabPress }) => {
               activeOpacity={1}
               style={styles.tabButton}
             >
-              <Animated.View 
+              <Animated.View
                 style={[
                   styles.tabItem,
                   {
@@ -128,18 +149,17 @@ const AppBar: React.FC<AppBarProps> = ({ activeTab, onTabPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#ffffff',
+    backgroundColor: aliasTokens.color.background.Primary,
     borderTopWidth: 1,
     borderTopColor: '#cfd8dc',
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 20,
+    ...aliasTokens.basic.dFlexCenter
+    // paddingHorizontal: aliasTokens.spacing.Medium,
   },
   tabsContainer: {
-    flexDirection: 'row',
-    gap: 32, // 32px spacing between tabs
-    alignItems: 'center',
-    justifyContent: 'center',
+    ...aliasTokens.basic.dFlexCenter,
+    gap: aliasTokens.spacing.Medium,
+    paddingTop: aliasTokens.spacing.Small,
+    paddingBottom: aliasTokens.spacing.Large,
   },
   tabButton: {
     // TouchableOpacity wrapper
@@ -148,10 +168,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 56, // 56px width for each tab
-    height: 50, // 50px height to match design
+    width: 54, // 56px width for each tab
     borderRadius: 12,
-    paddingHorizontal: 4,
+    // paddingHorizontal: 4,
     gap: 4, // 4px gap between icon and text
   },
   iconContainer: {
@@ -173,6 +192,13 @@ const styles = StyleSheet.create({
   inactiveTabLabel: {
     color: '#0f161a', // Dark text from Figma
   },
+  topBorder: {
+    height: 2,
+    width: 56,
+    backgroundColor: aliasTokens.color.brand.Primary,
+    position: 'absolute',
+    top: 0,
+  }
 });
 
 export default AppBar; 

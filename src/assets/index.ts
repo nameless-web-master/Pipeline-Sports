@@ -3,8 +3,7 @@
 const supabaseUrl = 'https://dswptzhcmjnylautdeea.supabase.co/storage/v1/object/public/app-assets/';
 
 const imageURL = {
-    HomeLogo: 'Logo/Logo.png',
-    Logo: 'Logo/Logo-small.png',
+    Logo: 'Logo/MainLogo.png',
     Entry: 'onboarding/entry-screen-1.png',
     Entry1: 'onboarding/entry-screen-2.png',
     Entry2: 'onboarding/entry-screen-3.png',

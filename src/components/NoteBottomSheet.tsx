@@ -35,6 +35,8 @@ interface NoteBottomSheetProps {
     style?: any;
     /** Success message to display */
     successMessage?: string;
+    /** Success title text (defaults to a generic message) */
+    successTitle?: string;
     /** Current bottom sheet state (0: form, 1: state selection, 2: success) */
     currentState: 0 | 1 | 2;
     /** Callback when state is changed */
@@ -67,6 +69,7 @@ const NoteBottomSheet: React.FC<NoteBottomSheetProps> = ({
     editable = true,
     style,
     successMessage = "We're currently focused on operating in Louisiana, but into other states, we'll be sure to keep you updated.",
+    successTitle = 'Success',
     setCurrentState,
     currentState,
     onboardingData,
@@ -158,7 +161,7 @@ const NoteBottomSheet: React.FC<NoteBottomSheetProps> = ({
                 />
 
                 {/* Success Title */}
-                <Text style={styles.successTitle}>Request Received!</Text>
+            <Text style={styles.successTitle}>{successTitle}</Text>
 
                 {/* Success Message */}
                 <Text style={styles.successMessage}>{successMessage}</Text>

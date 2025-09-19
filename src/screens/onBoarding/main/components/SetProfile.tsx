@@ -4,7 +4,7 @@ import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 // Custom Components
 import Input from '../../../../components/Input';
 import Dropdown from '../../../../components/Dropdown';
-import BottomSheet from '../../../../components/BottomSheet';
+import RoleBottomSheet from '../../../../components/RoleBottomSheet';
 import DobBottomSheet from '../../../../components/DobBottomSheet';
 
 // Theme Tokens
@@ -119,7 +119,7 @@ const SetProfile: React.FC<SetProfileProps> = ({
                     />
 
                     <View style={styles.spacing} />
-
+ 
                     {/* Date of Birth Field */}
                     <Text style={styles.label}>Date of birth</Text>
                     <TouchableOpacity
@@ -136,17 +136,14 @@ const SetProfile: React.FC<SetProfileProps> = ({
                 {/* Submit Button moved to parent; centralized CTA */}
             </View>
 
-            {/* Role Bottom Sheet */}
-            <BottomSheet
+            {/* Role selection bottom sheet (reusable component) */}
+            <RoleBottomSheet
                 visible={isRoleSheetVisible}
-                title=""
-                options={ROLE_OPTIONS}
                 onSelect={(value: string) => {
                     onRoleChange(value);
                     setRoleSheetVisible(false);
                 }}
                 onClose={() => setRoleSheetVisible(false)}
-                optionAlignment="left"
             />
 
             {/* Date of Birth Bottom Sheet */}

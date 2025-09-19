@@ -58,7 +58,7 @@ export const EntryTemplate = ({ Nr, setNr, navigation }: EntryTemplateProps): Re
                             source={{ uri: ImagesAssets(EntryList[Nr].image) }}
                             accessibilityLabel={`Entry${Nr}`}
                             style={styles.mainImage}
-                            resizeMode="stretch"
+                            resizeMode={isFirstSlide ? "cover" : "contain"}
                         />
                     </FadeSlideIn>
                     {/* Bottom gradient overlay for text readability */}

@@ -1,23 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Dropdown from '../../../../components/Dropdown';
-import BottomSheet from '../../../../components/BottomSheet';
 import { aliasTokens } from '../../../../theme/alias';
-import { LOCATION_STATES } from '../../../../strings';
+import LocationSelector from '../../../../components/LocationSelector';
 
-// Domain model for a State with its Local Areas
-interface LocalArea {
-    label: string;
-    value: string;
-}
-interface USStateAreas {
-    label: string; // State display label
-    value: string; // State unique value
-    areas: LocalArea[]; // Local areas for that state
-}
-
-// Adapter converting string constants to typed structure used locally
-const STATES: USStateAreas[] = LOCATION_STATES;
+// This screen now delegates dropdowns and bottom sheets to LocationSelector
 
 /**
  * Local Community selection screen
@@ -52,32 +38,7 @@ const LocalCommunity: React.FC<LocalCommunityProps> = ({
     setStep
 }) => {
 
-    // Bottom sheet visibility states
-    const [showStatesSheet, setShowStatesSheet] = useState(false);
-    const [showAreasSheet, setShowAreasSheet] = useState(false);
-
-    // Derived lists for the two dropdowns
-    const stateOptions = useMemo(
-        () => STATES.map((s) => ({ label: s.label, value: s.value })),
-        []
-    );
-    const areaOptions = useMemo(() => {
-        const state = STATES.find((s) => s.value === selectedState);
-        return (state?.areas ?? []).map((a) => ({ label: a.label, value: a.value }));
-    }, [selectedState]);
-
-    // Handlers
-    const handleSelectState = (value: string) => {
-        onStateChange(value);
-        // Close states sheet and open areas sheet to match the UX in screenshots
-        setShowStatesSheet(false);
-        setShowAreasSheet(true);
-    };
-
-    const handleSelectArea = (value: string) => {
-        onAreaChange(value);
-        setShowAreasSheet(false);
-    };
+    // The parent still controls selectedState/selectedArea values
 
 
     // Notify parent about validity changes whenever selection changes
@@ -89,58 +50,21 @@ const LocalCommunity: React.FC<LocalCommunityProps> = ({
 
     return (
         <View style={styles.container}>
-            {/* State dropdown - opens the states bottom sheet */}
-            <View style={{
-                gap: aliasTokens.spacing.Medium
-            }}>
-                <Dropdown
-                    label="State"
-                    placeholder="Select"
-                    value={selectedState}
-                    options={stateOptions}
-                    onSelect={() => { }}
-                    onOpenBottomSheet={() => setShowStatesSheet(true)}
-                />
-
-                {/* Local Area dropdown - opens areas sheet (disabled until a state is chosen) */}
-                <Dropdown
-                    label="Local Area"
-                    placeholder="Select"
-                    value={selectedArea}
-                    options={areaOptions}
-                    onSelect={() => { }}
-                    onOpenBottomSheet={() => selectedState && setShowAreasSheet(true)}
-                />
-            </View>
-
-            {/* Helper copy with Request link */}
-            <Text style={styles.helperText}>
-                Select the local area closest to you. If your area isn’t
-                listed, <Text style={styles.link} onPress={() => setStep(5)}>Request location</Text>
-            </Text>
+            <LocationSelector
+                selectedState={selectedState}
+                selectedArea={selectedArea}
+                onStateChange={onStateChange}
+                onAreaChange={onAreaChange}
+                helper={(
+                    <Text style={styles.helperText}>
+                        Select the local area closest to you. If your area isn’t
+                        listed, <Text style={styles.link} onPress={() => setStep(5)}>Request location</Text>
+                    </Text>
+                )}
+            />
 
             {/* Spacer to push content to the top */}
             <View style={{ flex: 1 }} />
-
-            {/* BottomSheet for States */}
-            <BottomSheet
-                visible={showStatesSheet}
-                title={undefined}
-                options={stateOptions}
-                onSelect={handleSelectState}
-                onClose={() => setShowStatesSheet(false)}
-                optionAlignment="left"
-            />
-
-            {/* BottomSheet for Local Areas (depends on selected state) */}
-            <BottomSheet
-                visible={showAreasSheet}
-                title={undefined}
-                options={areaOptions}
-                onSelect={handleSelectArea}
-                onClose={() => setShowAreasSheet(false)}
-                optionAlignment="left"
-            />
         </View>
     );
 };
