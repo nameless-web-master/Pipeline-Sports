@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Modal, View, TouchableOpacity, FlatList, Text, StyleSheet, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import Button from './Button';
 import { aliasTokens } from '../theme/alias';
@@ -16,18 +16,18 @@ interface DobBottomSheetProps {
     onSave: (value: Required<DobValue>) => void;
 }
 
-// Human-readable month names used for the month wheel
-const monthNames = [
+// Constants
+const MONTH_NAMES = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
-];
+] as const;
 
-// Visual constants governing the wheel appearance and behavior
 const ITEM_HEIGHT = 34;
-// Show 7 visible rows instead of 5
 const VISIBLE_ROWS = 7;
 const LIST_HEIGHT = ITEM_HEIGHT * VISIBLE_ROWS;
 const SIDE_SPACER_COUNT = Math.floor(VISIBLE_ROWS / 2);
+const SCROLL_END_DELAY = 150;
+const MIN_AGE = 13;
 
 /**
  * Build an inclusive numeric range [start, end].
@@ -39,13 +39,124 @@ const generateRange = (start: number, end: number) => {
     return arr;
 };
 
+/**
+ * Convert a vertical offset into the index of the item visually centered in the wheel.
+ * Includes clamping to ensure returned index is within bounds.
+ */
+const getCenteredIndex = (offsetY: number, dataLen: number) => {
+    const raw = Math.round(offsetY / ITEM_HEIGHT);
+    return Math.max(0, Math.min(dataLen - 1, raw));
+};
+
+/**
+ * Opacity curve for items away from the center. Tweakable for desired visual weight.
+ */
+const getFadeOpacity = (distance: number) => {
+    switch (distance) {
+        case 0: return 1;     // centered row
+        case 1: return 0.70;
+        case 2: return 0.40;
+        case 3: return 0.20;
+        default: return 0.5;
+    }
+};
+
+interface WheelProps<T> {
+    data: readonly T[];
+    ref: React.RefObject<FlatList<T> | null>;
+    offsetRef: React.MutableRefObject<number>;
+    centeredIndex: number | undefined;
+    onScroll: (offset: number) => void;
+    onScrollEnd: (offset: number) => void;
+    renderItem: (item: T, index: number, selected: boolean, distance: number) => React.ReactNode;
+    keyExtractor: (item: T, index: number) => string;
+    type: 'month' | 'day' | 'year';
+}
+
+/**
+ * Reusable wheel component for date picker
+ */
+const Wheel = <T,>({ 
+    data, 
+    ref, 
+    offsetRef, 
+    centeredIndex, 
+    onScroll, 
+    onScrollEnd, 
+    renderItem, 
+    keyExtractor,
+    type 
+}: WheelProps<T>) => {
+    const handleScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const offset = e.nativeEvent.contentOffset.y;
+        offsetRef.current = offset;
+        onScroll(offset);
+        onScrollEnd(offset);
+    }, [offsetRef, onScroll, onScrollEnd]);
+
+    const wrappedData = useMemo(() => [
+        ...Array(SIDE_SPACER_COUNT).fill(''),
+        ...data,
+        ...Array(SIDE_SPACER_COUNT).fill('')
+    ], [data]);
+
+    return (
+        <View style={styles.wheelWrapper}>
+            <FlatList
+                ref={ref}
+                data={wrappedData}
+                keyExtractor={keyExtractor}
+                showsVerticalScrollIndicator={false}
+                snapToInterval={ITEM_HEIGHT}
+                decelerationRate="fast"
+                getItemLayout={(_, index) => ({ length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index })}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                renderItem={({ index }) => {
+                    const isSpacer = index < SIDE_SPACER_COUNT || index >= SIDE_SPACER_COUNT + data.length;
+                    if (isSpacer) {
+                        return <View style={{ height: ITEM_HEIGHT }} />;
+                    }
+                    
+                    const actualIndex = index - SIDE_SPACER_COUNT;
+                    const item = data[actualIndex];
+                    const currentCentered = centeredIndex ?? getCenteredIndex(offsetRef.current, data.length);
+                    const distance = Math.abs(currentCentered - actualIndex);
+                    const selected = currentCentered === actualIndex;
+                    
+                    return renderItem(item, actualIndex, selected, distance) as React.ReactElement;
+                }}
+            />
+        </View>
+    );
+};
+
 const DobBottomSheet: React.FC<DobBottomSheetProps> = ({ visible, value, onClose, onSave }) => {
-    // Local, ephemeral DOB values (seeded by props). We only commit to parent on Save.
+    // Local DOB values (seeded by props)
     const [dobYear, setDobYear] = useState<number | undefined>(value?.year);
     const [dobMonth, setDobMonth] = useState<number | undefined>(value?.month);
     const [dobDay, setDobDay] = useState<number | undefined>(value?.day);
+    const [isValidAge, setIsValidAge] = useState(true);
 
-    // Day options depend on the selected month/year to account for variable month lengths and leap years
+    // Scroll end detection
+    const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Refs for each wheel
+    const monthListRef = useRef<FlatList<string>>(null);
+    const dayListRef = useRef<FlatList<number>>(null);
+    const yearListRef = useRef<FlatList<number>>(null);
+
+    // Track scroll offsets
+    const monthOffsetRef = useRef(0);
+    const dayOffsetRef = useRef(0);
+    const yearOffsetRef = useRef(0);
+
+    // Track centered indices
+    const [monthCenteredIndex, setMonthCenteredIndex] = useState<number | undefined>(undefined);
+    const [dayCenteredIndex, setDayCenteredIndex] = useState<number | undefined>(undefined);
+    const [yearCenteredIndex, setYearCenteredIndex] = useState<number | undefined>(undefined);
+
+    // Data options
     const dayOptions = useMemo(() => {
         if (!dobYear || !dobMonth) return generateRange(1, 31);
         const daysInMonth = new Date(dobYear, dobMonth, 0).getDate();
@@ -57,126 +168,108 @@ const DobBottomSheet: React.FC<DobBottomSheetProps> = ({ visible, value, onClose
         return generateRange(currentYear - 60, currentYear);
     }, []);
 
-    // Refs to each wheel list (month/day/year)
-    const monthListRef = useRef<FlatList<string>>(null);
-    const dayListRef = useRef<FlatList<number>>(null);
-    const yearListRef = useRef<FlatList<number>>(null);
+    // Scroll handlers
+    const handleScrollEnd = useCallback((scrollOffset: number, type: 'year' | 'month' | 'day') => {
+        if (scrollTimeoutRef.current) {
+            clearTimeout(scrollTimeoutRef.current);
+        }
 
-    // Track live scroll offsets so we can compute the centered index at any time
-    const monthOffsetRef = useRef(0);
-    const dayOffsetRef = useRef(0);
-    const yearOffsetRef = useRef(0);
+        scrollTimeoutRef.current = setTimeout(() => {
+            const snapOffset = Math.round(scrollOffset / ITEM_HEIGHT) * ITEM_HEIGHT;
+            
+            if (type === 'year') {
+                const index = getCenteredIndex(scrollOffset, yearOptions.length);
+                setDobYear(yearOptions[index]);
+                yearListRef.current?.scrollToOffset({ offset: snapOffset });
+            } else if (type === 'month') {
+                const index = getCenteredIndex(scrollOffset, MONTH_NAMES.length);
+                setDobMonth(index + 1);
+                monthListRef.current?.scrollToOffset({ offset: snapOffset });
+            } else if (type === 'day') {
+                const index = getCenteredIndex(scrollOffset, dayOptions.length);
+                setDobDay(dayOptions[index]);
+                dayListRef.current?.scrollToOffset({ offset: snapOffset });
+            }
+        }, SCROLL_END_DELAY);
+    }, [yearOptions, dayOptions]);
 
-    // These mirror the currently centered visible row for each wheel (visual selection)
-    const [monthCenteredIndex, setMonthCenteredIndex] = useState<number | undefined>(undefined);
-    const [dayCenteredIndex, setDayCenteredIndex] = useState<number | undefined>(undefined);
-    const [yearCenteredIndex, setYearCenteredIndex] = useState<number | undefined>(undefined);
-
-    /**
-     * Convert a vertical offset into the index of the item visually centered in the wheel.
-     * Includes clamping to ensure returned index is within bounds.
-     */
-    const getCenteredIndex = (offsetY: number, dataLen: number) => {
-        // With SIDE_SPACER_COUNT items added before data, the centered data index
-        // equals the current top index (rounded). No +/- spacer adjustment needed.
-        const raw = Math.round(offsetY / ITEM_HEIGHT);
-        return Math.max(0, Math.min(dataLen - 1, raw));
-    };
-
-    /**
-     * Generate a momentum-end handler that snaps and commits the selection for a given wheel.
-     * The `onSelect` will receive the value index within the non-spacer data array.
-     */
-    const onSnap = (dataLength: number, onSelect: (valueIndex: number) => void) =>
-        (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-            const offsetY = e.nativeEvent.contentOffset.y;
-            const clamped = getCenteredIndex(offsetY, dataLength);
-            onSelect(clamped);
-        };
-
-    /**
-     * Read the current centered UI indices and commit them into local DOB state.
-     * This allows tapping the highlighted band to "lock in" the current visual selection.
-     */
-    const commitCurrentCenteredValues = () => {
-        const mIndex = monthCenteredIndex ?? getCenteredIndex(monthOffsetRef.current, monthNames.length);
+    // Commit current centered values when tapping the center band
+    const commitCurrentCenteredValues = useCallback(() => {
+        const mIndex = monthCenteredIndex ?? getCenteredIndex(monthOffsetRef.current, MONTH_NAMES.length);
         const dIndex = dayCenteredIndex ?? getCenteredIndex(dayOffsetRef.current, dayOptions.length);
         const yIndex = yearCenteredIndex ?? getCenteredIndex(yearOffsetRef.current, yearOptions.length);
         setDobMonth(mIndex + 1);
         setDobDay(dayOptions[dIndex]);
         setDobYear(yearOptions[yIndex]);
-    };
+    }, [monthCenteredIndex, dayCenteredIndex, yearCenteredIndex, dayOptions, yearOptions]);
 
-    /**
-     * Render a single row in a wheel with selected styling.
-     */
-    const renderWheelItem = (label: string | number, selected: boolean, distanceFromCenter: number, type: string) => (
-        <View style={[
-            styles.item,
-            type === 'month' && styles.itemForMonth,
-            type === 'year' && styles.itemForYear,
-        ]}>
-            <Text
-                style={[
-                    styles.itemText,
-                    // Apply a fade based on how far the row is from the center selection
-                    { opacity: getFadeOpacity(distanceFromCenter) },
-                ]}
-            >
-                {label}
+    // Render functions for each wheel type
+    const renderMonthItem = useCallback((month: string, index: number, selected: boolean, distance: number) => (
+        <View style={[styles.item, styles.itemForMonth]}>
+            <Text style={[styles.itemText, { opacity: getFadeOpacity(distance) }]}>
+                {month}
             </Text>
         </View>
-    );
+    ), []);
 
-    /**
-     * Opacity curve for items away from the center. Tweakable for desired visual weight.
-     */
-    const getFadeOpacity = (distance: number) => {
-        switch (distance) {
-            case 0: return 1;     // centered row
-            case 1: return 0.70;
-            case 2: return 0.40;
-            case 3: return 0.20;
-            default: return 0.5;
-        }
-    };
+    const renderDayItem = useCallback((day: number, index: number, selected: boolean, distance: number) => (
+        <View style={styles.item}>
+            <Text style={[styles.itemText, { opacity: getFadeOpacity(distance) }]}>
+                {day}
+            </Text>
+        </View>
+    ), []);
 
-    // When the modal opens, position each wheel to reflect the current DOB values
-    React.useEffect(() => {
+    const renderYearItem = useCallback((year: number, index: number, selected: boolean, distance: number) => (
+        <View style={[styles.item, styles.itemForYear]}>
+            <Text style={[styles.itemText, { opacity: getFadeOpacity(distance) }]}>
+                {year}
+            </Text>
+        </View>
+    ), []);
+
+    // Initialize wheels when modal opens
+    useEffect(() => {
         if (!visible) return;
+        
         requestAnimationFrame(() => {
-            // Scroll each wheel so that the desired value is centered.
-            // Because the data arrays are wrapped with SIDE_SPACER_COUNT leading items,
-            // the visual index to center an actual data index `k` is `k + SIDE_SPACER_COUNT`.
-            const monthIndex = (dobMonth ? dobMonth - 1 : 0);
-            // Scroll so that data[monthIndex] is centered (top index = monthIndex)
+            const monthIndex = dobMonth ? dobMonth - 1 : 0;
             monthListRef.current?.scrollToIndex({ index: monthIndex, animated: false });
             monthOffsetRef.current = monthIndex * ITEM_HEIGHT;
             setMonthCenteredIndex(monthIndex);
 
-            const dayIndex = (dobDay ? dayOptions.indexOf(dobDay) : 0);
+            const dayIndex = dobDay ? dayOptions.indexOf(dobDay) : 0;
             dayListRef.current?.scrollToIndex({ index: dayIndex, animated: false });
             dayOffsetRef.current = dayIndex * ITEM_HEIGHT;
             setDayCenteredIndex(Math.max(0, dayIndex));
 
-            let yearIndex = 0;
-            if (dobYear) {
-                const found = yearOptions.indexOf(dobYear);
-                yearIndex = Math.max(0, found);
-            }
+            const yearIndex = dobYear ? Math.max(0, yearOptions.indexOf(dobYear)) : 0;
             yearListRef.current?.scrollToIndex({ index: yearIndex, animated: false });
             yearOffsetRef.current = yearIndex * ITEM_HEIGHT;
             setYearCenteredIndex(yearIndex);
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [visible]);
+    }, [visible, dobMonth, dobDay, dobYear, dayOptions, yearOptions]);
 
-    /**
-     * Finalize selection and return the chosen date to the parent.
-     * Reads the centered rows directly (no reliance on async setState).
-     */
-    const handleSave = () => {
-        const mIndex = monthCenteredIndex ?? getCenteredIndex(monthOffsetRef.current, monthNames.length);
+    // Validate age
+    useEffect(() => {
+        const currentYear = new Date().getFullYear();
+        const yIndex = yearCenteredIndex ?? getCenteredIndex(yearOffsetRef.current, yearOptions.length);
+        const selectedYear = yearOptions[yIndex];
+        setIsValidAge(currentYear - selectedYear >= MIN_AGE);
+    }, [yearCenteredIndex, yearOptions]);
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Save the selected date
+    const handleSave = useCallback(() => {
+        const mIndex = monthCenteredIndex ?? getCenteredIndex(monthOffsetRef.current, MONTH_NAMES.length);
         const dIndex = dayCenteredIndex ?? getCenteredIndex(dayOffsetRef.current, dayOptions.length);
         const yIndex = yearCenteredIndex ?? getCenteredIndex(yearOffsetRef.current, yearOptions.length);
 
@@ -184,12 +277,11 @@ const DobBottomSheet: React.FC<DobBottomSheetProps> = ({ visible, value, onClose
         const selectedDay = dayOptions[dIndex];
         const selectedYear = yearOptions[yIndex];
 
-        // Keep local state in sync (optional), then notify parent
         setDobMonth(selectedMonth);
         setDobDay(selectedDay);
         setDobYear(selectedYear);
         onSave({ year: selectedYear, month: selectedMonth, day: selectedDay });
-    };
+    }, [monthCenteredIndex, dayCenteredIndex, yearCenteredIndex, dayOptions, yearOptions, onSave]);
 
     return (
         <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
@@ -199,117 +291,50 @@ const DobBottomSheet: React.FC<DobBottomSheetProps> = ({ visible, value, onClose
                     <View style={styles.handleBar} />
 
                     <View style={styles.pickerRowContainer}>
-                        {/* Tapping the highlighted center band commits the currently centered values */}
                         <TouchableOpacity style={styles.rowCenterOverlay} activeOpacity={0.7} onPress={commitCurrentCenteredValues} />
 
                         <View style={styles.pickerRow}>
-                            <View>
-                                <View style={styles.wheelWrapper}>
-                                    <FlatList
-                                        ref={monthListRef}
-                                        data={[...Array(SIDE_SPACER_COUNT).fill(''), ...monthNames, ...Array(SIDE_SPACER_COUNT).fill('')]}
-                                        keyExtractor={(_, idx) => `m-${idx}`}
-                                        showsVerticalScrollIndicator={false}
-                                        snapToInterval={ITEM_HEIGHT}
-                                        // initialScrollIndex is derived via effect and explicit scroll
-                                        decelerationRate="fast"
-                                        getItemLayout={(_, index) => ({ length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index })}
-                                        onScroll={(e) => {
-                                            monthOffsetRef.current = e.nativeEvent.contentOffset.y;
-                                            setMonthCenteredIndex(getCenteredIndex(monthOffsetRef.current, monthNames.length));
-                                        }}
-                                        scrollEventThrottle={16}
-                                        onMomentumScrollEnd={(e) => {
-                                            const handler = onSnap(monthNames.length, (i) => setDobMonth(i + 1));
-                                            handler(e);
-                                        }}
-                                        renderItem={({ index }) => {
-                                            // Add leading/trailing spacer rows so the first/last real item can center
-                                            const isSpacer = index < SIDE_SPACER_COUNT || index >= SIDE_SPACER_COUNT + monthNames.length;
-                                            if (isSpacer) return <View style={{ height: ITEM_HEIGHT }} />;
-                                            const actualIndex = index - SIDE_SPACER_COUNT;
-                                            const currentCentered = monthCenteredIndex ?? getCenteredIndex(monthOffsetRef.current, monthNames.length);
-                                            const distance = Math.abs(currentCentered - actualIndex);
-                                            const selected = currentCentered === actualIndex;
-                                            return renderWheelItem(monthNames[actualIndex], selected, distance, 'month');
-                                        }}
-                                    />
-                                </View>
-                            </View>
+                            <Wheel
+                                data={MONTH_NAMES}
+                                ref={monthListRef}
+                                offsetRef={monthOffsetRef}
+                                centeredIndex={monthCenteredIndex}
+                                onScroll={(offset) => setMonthCenteredIndex(getCenteredIndex(offset, MONTH_NAMES.length))}
+                                onScrollEnd={(offset) => handleScrollEnd(offset, 'month')}
+                                renderItem={renderMonthItem}
+                                keyExtractor={(_, idx) => `m-${idx}`}
+                                type="month"
+                            />
 
                             <View style={styles.pickerColumn}>
-                                <View style={styles.wheelWrapper}>
-                                    <FlatList
-                                        ref={dayListRef}
-                                        data={[...Array(SIDE_SPACER_COUNT).fill(0), ...dayOptions, ...Array(SIDE_SPACER_COUNT).fill(0)]}
-                                        keyExtractor={(_, idx) => `d-${idx}`}
-                                        showsVerticalScrollIndicator={false}
-                                        snapToInterval={ITEM_HEIGHT}
-                                        // initialScrollIndex is derived via effect and explicit scroll
-                                        decelerationRate="fast"
-                                        getItemLayout={(_, index) => ({ length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index })}
-                                        onScroll={(e) => {
-                                            dayOffsetRef.current = e.nativeEvent.contentOffset.y;
-                                            setDayCenteredIndex(getCenteredIndex(dayOffsetRef.current, dayOptions.length));
-                                        }}
-                                        scrollEventThrottle={16}
-                                        onMomentumScrollEnd={(e) => {
-                                            const handler = onSnap(dayOptions.length, (i) => setDobDay(dayOptions[i]));
-                                            handler(e);
-                                        }}
-                                        renderItem={({ index }) => {
-                                            // Add leading/trailing spacer rows so the first/last real item can center
-                                            const isSpacer = index < SIDE_SPACER_COUNT || index >= SIDE_SPACER_COUNT + dayOptions.length;
-                                            if (isSpacer) return <View style={{ height: ITEM_HEIGHT }} />;
-                                            const actualIndex = index - SIDE_SPACER_COUNT;
-                                            const value = dayOptions[actualIndex];
-                                            const currentCentered = dayCenteredIndex ?? getCenteredIndex(dayOffsetRef.current, dayOptions.length);
-                                            const distance = Math.abs(currentCentered - actualIndex);
-                                            const selected = currentCentered === actualIndex;
-                                            return renderWheelItem(value, selected, distance, 'day');
-                                        }}
-                                    />
-                                </View>
+                                <Wheel
+                                    data={dayOptions}
+                                    ref={dayListRef}
+                                    offsetRef={dayOffsetRef}
+                                    centeredIndex={dayCenteredIndex}
+                                    onScroll={(offset) => setDayCenteredIndex(getCenteredIndex(offset, dayOptions.length))}
+                                    onScrollEnd={(offset) => handleScrollEnd(offset, 'day')}
+                                    renderItem={renderDayItem}
+                                    keyExtractor={(_, idx) => `d-${idx}`}
+                                    type="day"
+                                />
                             </View>
 
-                            <View>
-                                <View style={styles.wheelWrapper}>
-                                    <FlatList
-                                        ref={yearListRef}
-                                        data={[...Array(SIDE_SPACER_COUNT).fill(0), ...yearOptions, ...Array(SIDE_SPACER_COUNT).fill(0)]}
-                                        keyExtractor={(_, idx) => `y-${idx}`}
-                                        showsVerticalScrollIndicator={false}
-                                        snapToInterval={ITEM_HEIGHT}
-                                        // initialScrollIndex is derived via effect and explicit scroll
-                                        decelerationRate="fast"
-                                        getItemLayout={(_, index) => ({ length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index })}
-                                        onScroll={(e) => {
-                                            yearOffsetRef.current = e.nativeEvent.contentOffset.y;
-                                            setYearCenteredIndex(getCenteredIndex(yearOffsetRef.current, yearOptions.length));
-                                        }}
-                                        scrollEventThrottle={16}
-                                        onMomentumScrollEnd={(e) => {
-                                            const handler = onSnap(yearOptions.length, (i) => setDobYear(yearOptions[i]));
-                                            handler(e);
-                                        }}
-                                        renderItem={({ index }) => {
-                                            // Add leading/trailing spacer rows so the first/last real item can center
-                                            const isSpacer = index < SIDE_SPACER_COUNT || index >= SIDE_SPACER_COUNT + yearOptions.length;
-                                            if (isSpacer) return <View style={{ height: ITEM_HEIGHT }} />;
-                                            const actualIndex = index - SIDE_SPACER_COUNT;
-                                            const value = yearOptions[actualIndex];
-                                            const currentCentered = yearCenteredIndex ?? getCenteredIndex(yearOffsetRef.current, yearOptions.length);
-                                            const distance = Math.abs(currentCentered - actualIndex);
-                                            const selected = currentCentered === actualIndex;
-                                            return renderWheelItem(value, selected, distance, 'year');
-                                        }}
-                                    />
-                                </View>
-                            </View>
+                            <Wheel
+                                data={yearOptions}
+                                ref={yearListRef}
+                                offsetRef={yearOffsetRef}
+                                centeredIndex={yearCenteredIndex}
+                                onScroll={(offset) => setYearCenteredIndex(getCenteredIndex(offset, yearOptions.length))}
+                                onScrollEnd={(offset) => handleScrollEnd(offset, 'year')}
+                                renderItem={renderYearItem}
+                                keyExtractor={(_, idx) => `y-${idx}`}
+                                type="year"
+                            />
                         </View>
                     </View>
 
-                    <Button title="Save" onPress={handleSave} disabled={false} style={styles.saveButton} />
+                    <Button title="Save" onPress={handleSave} disabled={!isValidAge} style={styles.saveButton} />
                 </View>
             </View>
         </Modal>
@@ -330,7 +355,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
         paddingHorizontal: aliasTokens.spacing.Medium,
-        paddingBottom: aliasTokens.spacing.Medium,
+        paddingBottom: aliasTokens.spacing.Large,
     },
     handleBar: {
         width: 52,

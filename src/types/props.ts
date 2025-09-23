@@ -20,7 +20,13 @@ export interface StateOption {
 export interface DatabaseState {
     id: number;
     code: string;
-    name: string; // Always has a name (mapped from static data or fallback)
+}
+
+
+export interface DatabaseStateProps {
+    id: number;
+    code: string;
+    name: string
 }
 
 
@@ -31,6 +37,7 @@ export interface LocationType {
     state: string;
     city: string;
     id: number;
+    cityID: number | null
 }
 
 

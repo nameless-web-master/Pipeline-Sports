@@ -293,7 +293,7 @@ export const aliasTokens = {
       backgroundColor: designTokens.colors.white,
       paddingTop: designTokens.spacing[52],
       paddingHorizontal: designTokens.spacing[32],
-      paddingBottom: designTokens.spacing[20],
+      paddingBottom: designTokens.spacing[32],
     }
   },
 

@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform, Linking as RNLinking } from 'react-native';
 import Button from '../../../components/Button';
 import CircleIcon from '../../../components/CircleIcon';
 import { aliasTokens } from '../../../theme/alias';
@@ -20,9 +20,77 @@ const ResendEmailScreen = ({ navigation, route, showToast }: Props): ReactElemen
     const password = (route?.params as any)?.password;
     const content = (route?.params?.content as ContentType) ?? undefined;
 
-    // Opens the default mail client with the target email
-    const handleOpenMail = () => {
-        Linking.openURL(`mailto:${email}`).catch(() => { /* no-op */ });
+    // Attempt to open the user's email inbox natively. No browser/compose fallbacks.
+    const handleOpenMail = async () => {
+        try {
+            if (Platform.OS === 'android') {
+                // Try explicit intents for popular apps and a generic email category
+                const androidIntents: string[] = [
+                    // Gmail: open email app category in Gmail
+                    'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_EMAIL;package=com.google.android.gm;end',
+                    // Gmail: open inbox via scheme packaged to Gmail
+                    'intent://inbox#Intent;scheme=googlegmail;package=com.google.android.gm;end',
+                    // Gmail: conversation list with specific account (best effort)
+                    `intent://#Intent;action=android.intent.action.VIEW;component=com.google.android.gm/com.google.android.gm.ConversationListActivityGmail;S.extra_account=${encodeURIComponent(email)};end`,
+                    // Outlook
+                    'intent://inbox#Intent;scheme=ms-outlook;package=com.microsoft.office.outlook;end',
+                    'intent:#Intent;action=android.intent.action.VIEW;package=com.microsoft.office.outlook;end',
+                    // Yahoo Mail
+                    'intent://#Intent;scheme=ymail;package=com.yahoo.mobile.client.android.mail;end',
+                    'intent:#Intent;action=android.intent.action.VIEW;package=com.yahoo.mobile.client.android.mail;end',
+                    // Spark
+                    'intent://inbox#Intent;scheme=readdle-spark;package=com.readdle.spark;end',
+                    'intent:#Intent;action=android.intent.action.VIEW;package=com.readdle.spark;end',
+                    // Generic: open default email app
+                    'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_EMAIL;end',
+                ];
+
+                for (const intent of androidIntents) {
+                    try {
+                        await RNLinking.openURL(intent);
+                        return;
+                    } catch { /* try next intent */ }
+                }
+
+                // As a final Android attempt, try known schemes directly
+                const schemeCandidates: string[] = [
+                    'googlegmail://',
+                    'gmail://',
+                    'ms-outlook://inbox',
+                    'ymail://',
+                    'readdle-spark://inbox',
+                ];
+                for (const url of schemeCandidates) {
+                    try {
+                        await RNLinking.openURL(url);
+                        return;
+                    } catch { /* continue */ }
+                }
+            } else {
+                // iOS: try inbox schemes (account targeting is not supported publicly by Gmail on iOS)
+                const iosSchemes: string[] = [
+                    'googlegmail://',
+                    'gmail://',
+                    'ms-outlook://inbox',
+                    'ymail://',
+                    'readdle-spark://inbox',
+                ];
+                for (const url of iosSchemes) {
+                    try {
+                        const can = await RNLinking.canOpenURL(url);
+                        if (can) {
+                            await RNLinking.openURL(url);
+                            return;
+                        }
+                    } catch { /* continue */ }
+                }
+            }
+
+            // No supported mail apps available: do nothing
+            return;
+        } catch {
+            // Swallow errors; no-op to avoid crashing the flow
+        }
     };
 
     // Get the appropriate email sending function based on content type

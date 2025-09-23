@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   TouchableOpacity,
   Image,
   StyleSheet,
   Alert,
-  Platform
+  Platform,
+  Modal,
+  Text
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Plus, Pencil } from 'lucide-react-native';
+import { Plus, Pencil, Check, Undo2 } from 'lucide-react-native';
 import { aliasTokens } from '../theme/alias';
 
 interface ImageUploaderProps {
@@ -24,8 +26,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   style,
   initialImageUri
 }) => {
+  // The committed image shown in the UI and returned via callback
   const [selectedImage, setSelectedImage] = useState<string | null>(initialImageUri || null);
+  // A temporary preview image shown in a modal for confirmation
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isPreviewVisible, setIsPreviewVisible] = useState<boolean>(false);
 
+  // Keep internal state in sync when the initial image uri prop arrives/changes
+  useEffect(() => {
+    setSelectedImage(initialImageUri || null);
+  }, [initialImageUri]);
+
+  // Ask for photo library permission (no-op on web)
   const requestPermissions = async () => {
     if (Platform.OS !== 'web') {
       console.log('ImageUploader: Requesting media library permissions...');
@@ -58,6 +70,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     return true;
   };
 
+  // Open system image library and show preview modal (no cropping)
   const pickImage = async () => {
     const hasPermission = await requestPermissions();
     if (!hasPermission) return;
@@ -66,10 +79,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       console.log('ImageUploader: Launching image library...');
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: 'images',
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-        shape: 'oval',
+        quality: 1
       });
 
       console.log('ImageUploader: Image picker result:', {
@@ -78,13 +88,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         assetsCount: result.assets?.length || 0
       });
 
-      if (!result.canceled && result.assets[0]) {
+      if (!result.canceled && result.assets && result.assets[0]) {
         const imageUri = result.assets[0].uri;
-        console.log('ImageUploader: Selected image URI:', imageUri);
-        setSelectedImage(imageUri);
-        onImageSelected?.(imageUri);
-      } else {
-        console.log('ImageUploader: User canceled image selection or no assets returned');
+        setPreviewImage(imageUri);
+        setIsPreviewVisible(true);
       }
     } catch (error) {
       console.log('ImageUploader: Error picking image:', error);
@@ -92,8 +99,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   };
 
+  // Open system camera and show preview modal (no cropping)
   const takePhoto = async () => {
-    console.log('ImageUploader: Requesting camera permissions...');
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       console.log('ImageUploader: Camera permission status:', status);
@@ -122,11 +129,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     try {
       console.log('ImageUploader: Launching camera...');
       const result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-        shape: 'oval'
-
+        quality: 0.9
       });
 
       console.log('ImageUploader: Camera result:', {
@@ -135,13 +138,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         assetsCount: result.assets?.length || 0
       });
 
-      if (!result.canceled && result.assets[0]) {
+      if (!result.canceled && result.assets && result.assets[0]) {
         const imageUri = result.assets[0].uri;
-        console.log('ImageUploader: Captured image URI:', imageUri);
-        setSelectedImage(imageUri);
-        onImageSelected?.(imageUri);
-      } else {
-        console.log('ImageUploader: User canceled camera or no assets returned');
+        setPreviewImage(imageUri);
+        setIsPreviewVisible(true);
       }
     } catch (error) {
       console.log('ImageUploader: Error taking photo:', error);
@@ -159,6 +159,22 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         ]
       );
     }
+  };
+
+  // Confirm selection: commit preview image and notify parent
+  const confirmPreview = () => {
+    if (previewImage) {
+      setSelectedImage(previewImage);
+      onImageSelected?.(previewImage);
+    }
+    setIsPreviewVisible(false);
+    setPreviewImage(null);
+  };
+
+  // Cancel selection: close modal and discard preview
+  const cancelPreview = () => {
+    setIsPreviewVisible(false);
+    setPreviewImage(null);
   };
 
   const showImageOptions = () => {
@@ -206,6 +222,42 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           }
         </View>
       </View>
+
+      {/* Full-screen preview modal with controls matching native camera UI */}
+      <Modal
+        visible={isPreviewVisible}
+        transparent={false}
+        animationType="slide"
+        onRequestClose={cancelPreview}
+      >
+        <View style={styles.previewContainer}>
+          {previewImage && (
+            <Image
+              source={{ uri: previewImage }}
+              style={styles.previewImage}
+              resizeMode="contain"
+            />
+          )}
+
+          {/* Bottom-left back button */}
+          <TouchableOpacity style={styles.backButton} onPress={cancelPreview} activeOpacity={0.8}>
+            <View style={styles.backButtonOuter}>
+              <View style={styles.backButtonInner}>
+                <Undo2 size={20} color={"#F9DCCD"} />
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* Center large confirm button with ring */}
+          <TouchableOpacity style={styles.confirmButton} onPress={confirmPreview} activeOpacity={0.85}>
+            <View style={styles.confirmOuterRing}>
+              <View style={styles.confirmInnerButton}>
+                <Check size={24} color={aliasTokens.color.text.Primary} />
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </TouchableOpacity>
   );
 };
@@ -242,6 +294,53 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // Full-screen preview modal styles
+  previewContainer: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
+  previewImage: {
+    flex: 1,
+    width: '100%',
+  },
+  // Bottom-left back button: outer ring + inner filled circle
+  backButton: {
+    position: 'absolute',
+    left: 38,
+    bottom: 80,
+  },
+  backButtonOuter: {
+    width: aliasTokens.sizes.Medium,
+    height: aliasTokens.sizes.Medium,
+    ...aliasTokens.basic.dFlexCenter,
+    borderWidth: 2,
+    borderColor: '#F9DCCD',
+    borderRadius: aliasTokens.sizes.Medium / 2,
+  },
+  backButtonInner: {
+    ...aliasTokens.basic.dFlexCenter,
+  },
+  // Center confirm button: big outer ring and inner white button
+  confirmButton: {
+    position: 'absolute',
+    alignSelf: 'center',
+    bottom: 80,
+  },
+  confirmOuterRing: {
+    width: 76,
+    height: 76,
+    borderRadius: 44,
+    borderWidth: 2.5,
+    borderColor: '#F9DCCD',
+    ...aliasTokens.basic.dFlexCenter,
+  },
+  confirmInnerButton: {
+    width: 58,
+    height: 58,
+    borderRadius: 34,
+    backgroundColor: '#F9DCCD',
+    ...aliasTokens.basic.dFlexCenter,
+  }
 });
 
 export default ImageUploader; 

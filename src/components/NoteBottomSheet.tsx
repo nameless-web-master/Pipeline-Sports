@@ -38,9 +38,9 @@ interface NoteBottomSheetProps {
     /** Success title text (defaults to a generic message) */
     successTitle?: string;
     /** Current bottom sheet state (0: form, 1: state selection, 2: success) */
-    currentState: 0 | 1 | 2;
+    currentState?: 0 | 1 | 2;
     /** Callback when state is changed */
-    setCurrentState: (state: 0 | 1 | 2) => void;
+    setCurrentState?: (state: 0 | 1 | 2) => void;
     /** Onboarding data to be logged */
     onboardingData?: OnboardingData;
     /** Whether the close button should show loading state */

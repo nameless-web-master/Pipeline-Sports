@@ -47,7 +47,7 @@ const Navigation = ({ showToast }: NavigationProps): ReactElement => {
   const Gateway = (GatewayModule as any).default || (GatewayModule as any);
   return (
     <NavigationContainer ref={navigationRef} linking={linking}>
-      <Stack.Navigator initialRouteName="SettingsMain" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
 
         {/* OnBoarding Navigation Link */}
 
@@ -99,7 +99,9 @@ const Navigation = ({ showToast }: NavigationProps): ReactElement => {
           <Stack.Screen name='SettingsMain'>
             {(props) => <SettingsScreen {...props} showToast={showToast} />}
           </Stack.Screen>
-          <Stack.Screen name='UserInformation' component={UserInformation} />
+          <Stack.Screen name='UserInformation'>
+            {(props) => <UserInformation {...props} showToast={showToast} />}
+          </Stack.Screen>
           <Stack.Screen name='LocationSetting'>
             {(props) => <LocationSetting {...props} showToast={showToast} />}
           </Stack.Screen>

@@ -3,7 +3,8 @@ export const linking = {
     config: {
         screens: {
             OnBoardingMain: 'OnBoardingMain',
-            ResetPassowrd: 'ResetPassowrd'
+            ResetPassowrd: 'ResetPassowrd',
+            SettingsMain: 'SettingsMain'
         }
     }
 };

@@ -4,8 +4,7 @@ import { aliasTokens } from "../theme/alias"
 
 export const LoadingStates = () =>
     <View style={styles.loadingContainer}>
-        <ActivityIndicator size="small" color={aliasTokens.color.brand.Primary} />
-        <Text style={styles.loadingText} >Loading states...</Text>
+        <ActivityIndicator size={40} color={aliasTokens.color.brand.Primary} />
     </View>;
 
 const styles = StyleSheet.create({
@@ -16,6 +15,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingVertical: aliasTokens.spacing.Large,
         paddingHorizontal: aliasTokens.spacing.Medium,
+        position: 'absolute',
     },
     loadingText: {
         marginLeft: aliasTokens.spacing.Small,

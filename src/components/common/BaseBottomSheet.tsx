@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: aliasTokens.spacing.Medium,
-    paddingBottom: aliasTokens.spacing.Medium,
+    paddingBottom: aliasTokens.spacing.Large,
     maxHeight: '85%',
     elevation: 8,
     shadowColor: '#000',
