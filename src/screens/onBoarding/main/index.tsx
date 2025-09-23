@@ -249,7 +249,7 @@ export const OnBoardingMain = ({ navigation, showToast }: OnBoardingMainWithToas
                         setStep={setStep}
                         showToast={showToast}
                         onboardingData={buildOnboardingData()}
-                        handleCompleteOnboarding={handleCompleteOnboarding}
+                        handleCompleteOnboarding={() => setStep(4)}
                     />
                 )
             }

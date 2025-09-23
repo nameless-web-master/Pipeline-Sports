@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Text, ActivityIndicator, Keyboard, Platform } from 'react-native';
 import { aliasTokens } from '../theme/alias';
 import Button from './Button';
 import Input from './Input';
@@ -7,7 +7,7 @@ import Dropdown from './Dropdown';
 import BottomSheet from './BottomSheet';
 import BaseBottomSheet from './common/BaseBottomSheet';
 import { US_STATES } from '../strings';
-import { StateOption, DatabaseState } from '../types/props';
+import { StateOption, DatabaseState, DatabaseStateProps } from '../types/props';
 import { fetchStatesFromDB, saveLocationToDB } from '../hooks/useProfile';
 import { LocationType } from '../types/props';
 import { getCurrentSession } from '../hooks/useSession';
@@ -52,7 +52,7 @@ const StateBottomSheet: React.FC<StateBottomSheetProps> = ({
     visible,
     onSave,
     onClose,
-    initialLocation = { state: '', city: '', id: 0 },
+    initialLocation = { state: '', city: '', id: 0, cityID: null },
     title = 'Request Location',
     style,
     currentState,
@@ -60,7 +60,7 @@ const StateBottomSheet: React.FC<StateBottomSheetProps> = ({
     showToast
 }) => {
     // State management for database states
-    const [states, setStates] = useState<DatabaseState[]>([]);
+    const [states, setStates] = useState<DatabaseStateProps[]>([]);
     const [loading, setLoading] = useState(true); // Start with loading true
     const [error, setError] = useState<string | null>(null);
     const [initialLoad, setInitialLoad] = useState(true);
@@ -68,8 +68,32 @@ const StateBottomSheet: React.FC<StateBottomSheetProps> = ({
     // Loading state for save operation
     const [saving, setSaving] = useState(false);
 
+    // Keyboard offset to lift the bottom sheet above the keyboard
+    const [keyboardOffset, setKeyboardOffset] = useState(0);
+
+    // Listen to keyboard show/hide to adjust bottom sheet position
+    useEffect(() => {
+        const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+        const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+        const onShow = (e: any) => {
+            const height = e?.endCoordinates?.height ?? 0;
+            setKeyboardOffset(height);
+        };
+
+        const onHide = () => setKeyboardOffset(0);
+
+        const showSub = Keyboard.addListener(showEvent, onShow);
+        const hideSub = Keyboard.addListener(hideEvent, onHide);
+
+        return () => {
+            showSub.remove();
+            hideSub.remove();
+        };
+    }, []);
+
     // Helper function to map database states to static state names
-    const mapDatabaseStatesToStatic = (dbStates: DatabaseState[]): DatabaseState[] => {
+    const mapDatabaseStatesToStatic = (dbStates: DatabaseStateProps[]): DatabaseStateProps[] => {
         return dbStates.map(dbState => {
             const staticState = US_STATES.find(staticState => staticState.code === dbState.code);
             if (staticState) {
@@ -209,21 +233,11 @@ const StateBottomSheet: React.FC<StateBottomSheetProps> = ({
                 userId: userId
             });
 
-            console.log(result);
-
-
             if (result.success) {
-                // Show success toast
-                // showToast({
-                //     message: result.message,
-                //     type: 'success',
-                //     duration: 2000,
-                //     afterToast: () => {
-                //         // Close the bottom sheet after successful save
-                //         onClose();
-                //         setCurrentState(0); // Reset to initial state
-                //     }
-                // });
+                onSave({
+                    ...initialLocation,
+                    cityID: result.cityID
+                });
                 setCurrentState(2);
             } else {
                 // Show error toast
@@ -262,7 +276,7 @@ const StateBottomSheet: React.FC<StateBottomSheetProps> = ({
                 visible={visible && currentState === 0}
                 onClose={onClose}
                 title={title}
-                style={style}
+                style={[style, keyboardOffset > 0 ? { marginBottom: keyboardOffset } : null]}
                 showCloseButton={false}
             >
                 {/* Form Content */}

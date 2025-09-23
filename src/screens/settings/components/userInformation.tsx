@@ -1,9 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { StackNavigationProp } from '@react-navigation/stack';
+import type { StackScreenProps } from '@react-navigation/stack';
 
-import AppHeader from '../../../components/AppHeader';
 import BackButton from '../../../components/BackButton';
 import Input from '../../../components/Input';
 import Dropdown from '../../../components/Dropdown';
@@ -11,8 +9,15 @@ import RoleBottomSheet from '../../../components/RoleBottomSheet';
 import Button from '../../../components/Button';
 import { aliasTokens } from '../../../theme/alias';
 import type { RootStackParamList } from '../../../types/navigation';
+import type { ShowToast } from '../../../types/toast';
 import { Template } from '../../../components/layout/Template';
 import { ROLE_OPTIONS } from '../../../strings';
+import { AuthContext } from '../../../context/AuthContext';
+import { updateUserProfile } from '../../../hooks/useProfile';
+
+interface UserInformationProps extends StackScreenProps<RootStackParamList, 'UserInformation'> {
+    showToast: ShowToast;
+}
 
 /**
  * UserInformation
@@ -22,20 +27,21 @@ import { ROLE_OPTIONS } from '../../../strings';
  * - "Which are you?" dropdown using a bottom sheet
  * - Disabled Save button that enables when form becomes dirty
  */
-const UserInformation: React.FC = () => {
-    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+const UserInformation: React.FC<UserInformationProps> = ({ showToast, navigation }) => {
+    const { profile, setState } = useContext(AuthContext);
+
 
     // Initial values (could be replaced by user profile values from context/api)
     const initial = useMemo(() => ({
-        firstName: 'Daniel',
-        lastName: 'Martinez',
-        role: 'coach',
+        firstName: profile?.first_name ?? '',
+        lastName: profile?.last_name ?? '',
+        role: profile?.role ?? '',
     }), []);
 
     // Local form state
     const [firstName, setFirstName] = useState(initial.firstName);
     const [lastName, setLastName] = useState(initial.lastName);
-    const [role, setRole] = useState<string>(initial.role);
+    const [role, setRole] = useState<string>(initial.role ?? '');
     const [isLoading, setIsLoading] = useState(false);
 
     // Bottom sheet control
@@ -47,9 +53,25 @@ const UserInformation: React.FC = () => {
     // Dropdown options (centralized list)
     const roleOptions = ROLE_OPTIONS;
 
-    const onSave = () => {
+    const onSave = async () => {
         // Hook up to API later; for now just close or show toast upstream
-        // navigation.goBack();
+        setIsLoading(true);
+        try {
+            const updateResult = await updateUserProfile(profile?.id ?? '',
+                { first_name: firstName, last_name: lastName, role: role });
+            if (!updateResult.success) {
+                showToast({ message: updateResult.error || 'Failed to update profile', type: 'danger' });
+            } else {
+                showToast({ message: 'Profile updated successfully', type: 'success' });
+                setState?.(prev => !prev);
+
+                navigation.navigate('SettingsMain');
+            }
+        } catch (error) {
+            showToast({ message: 'Failed to update profile', type: 'danger' });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const leftComponent =
@@ -79,7 +101,7 @@ const UserInformation: React.FC = () => {
                 >
                     <Input
                         label="First Name"
-                        value={firstName}
+                        value={firstName ?? ''}
                         onChangeText={setFirstName}
                         placeholder="Enter first name"
                         autoCapitalize="words"
@@ -90,7 +112,7 @@ const UserInformation: React.FC = () => {
 
                     <Input
                         label="Last Name"
-                        value={lastName}
+                        value={lastName ?? ''}
                         onChangeText={setLastName}
                         placeholder="Enter last name"
                         autoCapitalize="words"
@@ -113,7 +135,7 @@ const UserInformation: React.FC = () => {
                     <Button
                         title="Save Changes"
                         onPress={onSave}
-                        disabled={!isDirty || isEmpty}
+                        disabled={!isDirty || isEmpty || isLoading}
                         variant="primary"
                         style={styles.saveButton}
                     />
@@ -153,7 +175,7 @@ const styles = StyleSheet.create({
     },
     footer: {
         paddingHorizontal: aliasTokens.spacing.Medium,
-        paddingVertical: aliasTokens.spacing.Medium,
+        paddingVertical: aliasTokens.spacing.Large,
         backgroundColor: aliasTokens.color.background.Primary
     },
     saveButton: {

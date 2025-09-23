@@ -132,8 +132,6 @@ const styles = StyleSheet.create({
   toggleButton: {
     paddingHorizontal: aliasTokens.spacing.Medium,
     paddingVertical: aliasTokens.spacing.XSmall,
-    borderLeftWidth: 1,
-    borderLeftColor: aliasTokens.color.border.Light,
   },
   toggleText: {
     ...aliasTokens.typography.buttonText.Small,

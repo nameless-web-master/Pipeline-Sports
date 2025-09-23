@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import ImageUploader from "../../components/ImageUploader";
 import { aliasTokens } from "../../theme/alias";
@@ -7,13 +7,19 @@ import { ChevronRight, LogOut } from "lucide-react-native";
 import { AuthContext } from "../../context/AuthContext";
 import { Version } from "../../components/Version";
 import type { ShowToast } from "../../types/toast";
-import { signOut } from "../../hooks/useAuth";
+import { signOut, updateEmail } from "../../hooks/useAuth";
 
 import { SettingsMain } from "../../types/navigation";
 
 import { Template } from "../../components/layout/Template";
 import EmailBottomSheet from "../../components/EmailBottomSheet";
 import validateEmail from "../../utils/validateEmail";
+import { uploadImageToStorage, updateUserProfile } from "../../hooks/useProfile";
+import NoteBottomSheet from "../../components/NoteBottomSheet";
+
+import * as Linking from 'expo-linking';
+import { supabase } from "../../lib/supabase";
+
 
 /**
  * SettingsScreen
@@ -25,13 +31,13 @@ interface SettingsScreenProps extends SettingsMain {
 }
 
 export const SettingsScreen = ({ showToast, navigation }: SettingsScreenProps) => {
-    const { user } = useContext(AuthContext);
-    console.log(user);
-
+    const { user, profile, setState, state } = useContext(AuthContext);
     // Controls the visibility of the email change bottom sheet
     const [emailSheetVisible, setEmailSheetVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSuccess, setIsSuccess] = useState(false);
     // In a real app use user's email from context. Using placeholder here.
-    const currentEmail = "daniel.martinez1995@gmail.com";
+    const currentEmail = useMemo(() => user?.email ?? '', [state]);
 
     const SignOutHandle = async () => {
         if (!user) {
@@ -57,14 +63,146 @@ export const SettingsScreen = ({ showToast, navigation }: SettingsScreenProps) =
         }
     }
 
+    /**
+     * Handles avatar change from the ImageUploader
+     * 1) Validate session user
+     * 2) Upload image to storage
+     * 3) Update `users.avatar` with the new public URL
+     * 4) Provide user feedback via toasts
+     */
+    const handleAvatarChange = async (localUri: string) => {
+        try {
+            if (!user?.id) {
+                showToast({ message: 'User session not found.', type: 'danger' });
+                return;
+            }
+
+            setIsLoading(true);
+
+            // Step 1: Upload image
+            const uploadResult = await uploadImageToStorage(localUri, user.id);
+            if (!uploadResult.success || !uploadResult.publicUrl) {
+                showToast({ message: uploadResult.error || 'Upload failed', type: 'danger' });
+                return;
+            }
+
+            // Step 2: Persist avatar URL to user profile
+            const updateResult = await updateUserProfile(user.id, { avatar: uploadResult.publicUrl });
+            if (!updateResult.success) {
+                showToast({ message: updateResult.error || 'Failed to update profile photo', type: 'danger' });
+                return;
+            }
+
+            // Success
+            showToast({ message: 'Profile photo updated.', type: 'success' });
+        } catch (error: any) {
+            showToast({ message: error.message, type: "danger" });
+        } finally {
+            setIsLoading(false);
+            setState?.(prev => !prev);
+        }
+    };
+
+    // Handle deep link navigation
+    useEffect(() => {
+        const handleDeepLink = async (url: string | null) => {
+            if (!url) return;
+
+            console.log('Deep link URL:', url);
+
+            if (url.includes('SettingsMain')) {
+                // Re-fetch the user instead of exchangeCodeForSession
+                const { data, error } = await supabase.auth.getUser();
+                if (error) {
+                    showToast({
+                        message: "Failed to fetch user. Try again.",
+                        type: "danger"
+                    });
+                    return;
+                }
+
+                if (data?.user) {
+                    // Check if email changed
+                    if (data.user.email === currentEmail) {
+                        showToast({
+                            message: "You should verify your Old and New Email with.",
+                            type: "info",
+                            duration: 2400
+                        });
+                    } else if (!isSuccess) {
+                        // Only set success if not already showing
+                        setIsSuccess(true);
+                    }
+                }
+
+                setState?.((prev) => !prev);
+            }
+        };
+
+        // Get initial URL and listen for new URLs
+        Linking.getInitialURL().then(handleDeepLink);
+        const subscription = Linking.addEventListener('url', (event) => {
+            handleDeepLink(event.url);
+        });
+
+        return () => subscription.remove();
+    }, [currentEmail, isSuccess, showToast, setState]);
+
+    /**
+      * Handles email change from the Bottom
+      * 1) Validate session user
+      * 2) Validate new email
+      * 3) Update the email
+      */
+
+    const handleEmailChange = async (newEmail: string) => {
+        try {
+            // Example handler: validate again, then show toast. Replace with API call.
+            if (!validateEmail(newEmail)) {
+                showToast({ message: 'Invalid email.', type: 'danger' });
+                return;
+            }
+
+            if (!user?.id) {
+                showToast({ message: 'User session not found.', type: 'danger' });
+                return;
+            }
+
+            const updateEmailResult = await updateEmail(user.id, newEmail);
+
+            if (!updateEmailResult.success) {
+                showToast({ message: updateEmailResult.error as string, type: 'danger' });
+                return;
+            }
+
+            showToast({ message: 'Check and verify your emails', type: 'success' });
+        } catch (error: any) {
+            showToast({ message: error.message, type: 'danger' });
+        } finally {
+            setState?.(prev => !prev);
+        }
+    }
+
+    const HandleNoteClose = () => {
+        setIsSuccess(false);
+        showToast({
+            message: 'You should Login again',
+            type: "info"
+        });
+        navigation.navigate("Gateway");
+    }
+
     return (
         <Template>
             <ScrollView>
                 {/* Profile header */}
                 <View style={styles.profileHeader}>
-                    <ImageUploader initialImageUri={"dfg"} />
-                    <Text style={styles.profileName}>Daniel Martinez</Text>
-                    <Text style={styles.profileEmail}>daniel.martinez1995@gmail.com</Text>
+                    <ImageUploader
+                        initialImageUri={profile?.avatar}
+                        onImageSelected={handleAvatarChange}
+                    />
+                    <Text style={styles.profileName}>{profile?.first_name} {profile?.last_name}</Text>
+                    <Text style={styles.profileEmail}>{currentEmail}</Text>
                 </View>
 
                 {/* My Pages section */}
@@ -115,18 +253,20 @@ export const SettingsScreen = ({ showToast, navigation }: SettingsScreenProps) =
             {/* Email change bottom sheet */}
             <EmailBottomSheet
                 visible={emailSheetVisible}
-                currentEmail={currentEmail}
-                onConfirm={async (newEmail) => {
-                    // Example handler: validate again, then show toast. Replace with API call.
-                    if (!validateEmail(newEmail)) {
-                        showToast({ message: 'Invalid email.', type: 'danger' });
-                        return;
-                    }
-                    showToast({ message: 'Check and verify your new email', type: 'success' });
-                }}
+                currentEmail={currentEmail ?? ''}
+                onConfirm={handleEmailChange}
                 onClose={() => setEmailSheetVisible(false)}
                 showToast={showToast}
             />
+            {/* After Success Email Verification */}
+            {
+                isSuccess && <NoteBottomSheet
+                    visible={isSuccess}
+                    onClose={HandleNoteClose}
+                    successTitle="Email Verified"
+                    successMessage="Your new email has been successfully set and verified"
+                />
+            }
         </Template>
     );
 };

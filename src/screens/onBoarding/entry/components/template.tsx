@@ -3,12 +3,11 @@ import { Image, Text, View, StyleSheet } from "react-native";
 
 import { ImagesAssets } from "../../../../assets";
 import { aliasTokens } from "../../../../theme/alias";
-import { StaticContent, ENTRY_SLIDES } from "../../../../strings";
+import { ENTRY_SLIDES } from "../../../../strings";
 import { entryMain } from "../../../../types/navigation";
 
 import Dots from "../../../../components/dots";
 import Button from "../../../../components/Button";
-import FadeSlideIn from "../../../../components/FadeSlideIn";
 import BottomGradient from "../../../../components/BottomGradient";
 import { LogoImage } from "../../../../components/Logo";
 
@@ -53,14 +52,12 @@ export const EntryTemplate = ({ Nr, setNr, navigation }: EntryTemplateProps): Re
             <View style={isFirstSlide ? { flex: 1 } : styles.mainImageContainer}>
                 <View style={styles.imageWrapper}>
                     {/* Animated image with fade transition */}
-                    <FadeSlideIn trigger={Nr} style={styles.mainImage}>
-                        <Image
-                            source={{ uri: ImagesAssets(EntryList[Nr].image) }}
-                            accessibilityLabel={`Entry${Nr}`}
-                            style={styles.mainImage}
-                            resizeMode={isFirstSlide ? "cover" : "contain"}
-                        />
-                    </FadeSlideIn>
+                    <Image
+                        source={{ uri: ImagesAssets(EntryList[Nr].image) }}
+                        accessibilityLabel={`Entry${Nr}`}
+                        style={styles.mainImage}
+                        resizeMode={isFirstSlide ? "cover" : "contain"}
+                    />
                     {/* Bottom gradient overlay for text readability */}
                     <BottomGradient height={180} />
                 </View>

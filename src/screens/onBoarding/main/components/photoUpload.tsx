@@ -54,7 +54,6 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
                 <View style={styles.imageUploaderContainer}>
                     <ImageUploader
                         onImageSelected={handleImageSelected}
-                        size={140}
                         style={styles.imageUploader}
                         initialImageUri={uploadedImageUri}
                     />

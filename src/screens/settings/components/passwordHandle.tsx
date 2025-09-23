@@ -1,16 +1,16 @@
-import React, { memo, ReactElement, useCallback, useMemo, useState } from 'react';
+import React, { memo, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import BackButton from '../../../components/BackButton';
 import PasswordInput from '../../../components/PasswordInput';
 import Button from '../../../components/Button';
 import { aliasTokens } from '../../../theme/alias';
 import type { ShowToast } from '../../../types/toast';
-import { updatePassword, signOut } from '../../../hooks/useAuth';
+import { changePassword } from '../../../hooks/useAuth';
 import type { ScreenProps } from '../../../types/navigation';
 import PasswordRules from '../../../components/PasswordRules';
 import { Template } from '../../../components/layout/Template';
-import NoteBottomSheet from '../../../components/NoteBottomSheet';
 import ConfirmBottomSheet from '../../../components/ConfirmBottomSheet';
+import { AuthContext } from '../../../context/AuthContext';
 
 // Reuse the same local validation rules used by resetPassword
 const LETTER_REGEX = /[A-Za-z]/;
@@ -27,6 +27,8 @@ type Props = ScreenProps<'PasswordHandle'> & { showToast: ShowToast };
  * - On success: logs out the user and navigates back to Login
  */
 const PasswordHandle = ({ navigation, showToast }: Props): ReactElement => {
+    const { user } = useContext(AuthContext);
+
     // Inputs
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -35,8 +37,6 @@ const PasswordHandle = ({ navigation, showToast }: Props): ReactElement => {
     // UI state
     const [submitting, setSubmitting] = useState(false);
     const [confirmVisible, setConfirmVisible] = useState(false);
-    const [successVisible, setSuccessVisible] = useState(false);
-    const [sheetState, setSheetState] = useState<0 | 1 | 2>(2);
 
     // Validation rules (mirrors ResetPassowrd visual spec)
     const passHasMin = useMemo(() => newPassword.length >= 8, [newPassword]);
@@ -51,24 +51,30 @@ const PasswordHandle = ({ navigation, showToast }: Props): ReactElement => {
     }, [navigation]);
 
     const handleOpenConfirm = useCallback(() => {
-        if (!isFormValid) return;
         setConfirmVisible(true);
+        if (!isFormValid) return;
     }, [isFormValid]);
 
     const handleSubmit = useCallback(async () => {
         try {
             setSubmitting(true);
-            setConfirmVisible(false);
+
+            if (!user?.email)
+                return;
 
             // Note: Supabase does not require the current password when there is a valid session.
-            const ok = await updatePassword(newPassword);
-            if (!ok) {
-                showToast({ message: 'Failed to update password. Try again.', type: 'danger' });
+            const ok = await changePassword(user?.email, currentPassword, newPassword);
+            console.log(ok);
+
+            if (!ok.success) {
+                showToast({ message: ok.error as string, type: 'danger' });
                 return;
             }
+            showToast({ message: 'The password is changed!', type: 'success' });
+            navigation.navigate('SettingsMain');
+            setConfirmVisible(false);
 
             // Show success sheet; on close we will sign out and navigate to Login
-            setSuccessVisible(true);
         }
         catch (e: any) {
             const message = e?.message ?? 'Unexpected error while changing password.';
@@ -76,7 +82,8 @@ const PasswordHandle = ({ navigation, showToast }: Props): ReactElement => {
         } finally {
             setSubmitting(false);
         }
-    }, [navigation, newPassword, showToast]);
+
+    }, [navigation, newPassword, showToast, confirmPassword, currentPassword]);
 
 
     const leftComponent = (
@@ -150,24 +157,6 @@ const PasswordHandle = ({ navigation, showToast }: Props): ReactElement => {
                 visible={confirmVisible}
                 onCancel={() => setConfirmVisible(false)}
                 onConfirm={handleSubmit}
-                loading={submitting}
-            />
-
-            {/* Success bottom sheet */}
-            <NoteBottomSheet
-                visible={successVisible}
-                onClose={async () => {
-                    setSuccessVisible(false);
-                    try {
-                        await signOut();
-                    } finally {
-                        navigation.navigate('Login');
-                    }
-                }}
-                successTitle={'Password Updated'}
-                successMessage={'Your password has been updated successfully. Please log in again.'}
-                currentState={sheetState}
-                setCurrentState={setSheetState}
                 loading={submitting}
             />
         </Template>

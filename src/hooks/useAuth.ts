@@ -29,7 +29,7 @@ export const getTokenFromUrl = async (url: string): Promise<Record<string, strin
     try {
         const hashIndex = url.indexOf('#');
         if (hashIndex === -1) return {};
-
+        // 
         const hash = url.substring(hashIndex + 1);
         return hash.split('&').reduce((acc: Record<string, string>, part: string) => {
             const [key, value] = part.split('=');
@@ -88,6 +88,8 @@ export const signInWithPassword = async (email: string, password: string) => {
         const { data, error } = await supabase
             .auth
             .signInWithPassword({ email, password });
+        console.log(error);
+
 
         return error ? false : true;
 
@@ -172,10 +174,78 @@ export const sendResetPasswordEmail = async (email: string) => {
  */
 export const updatePassword = async (newPassword: string) => {
     try {
-        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        const { error } = await supabaseAdmin
+            .auth
+            .updateUser({ password: newPassword });
+
         return error ? false : true;
     } catch {
         return false;
+    }
+}
+
+/**
+ * Change password with current password verification.
+ * Verifies current password before updating to new password.
+ * Requires a valid session (user must be logged in).
+ */
+export const changePassword = async (email: string, currentPassword: string, newPassword: string) => {
+    try {
+        // Verify current password by attempting to sign in
+        const { error: verifyError } = await supabase
+            .auth
+            .signInWithPassword({
+                email: email,
+                password: currentPassword
+            });
+
+        if (verifyError) {
+            return { success: false, error: 'Current password is incorrect.' };
+        }
+
+        // If current password is correct, update to new password
+        const result = await updatePassword(newPassword);
+
+        if (!result) {
+            console.log('Password change error');
+            return { success: false, error: 'Password change error' };
+        }
+
+        console.log('Password changed successfully');
+        return { success: true, error: null };
+    } catch (error) {
+        console.log('Password change failed:', error);
+        const errorMessage = (error instanceof Error) ? error.message : 'An unexpected error occurred during password change.';
+        return { success: false, error: errorMessage };
+    }
+}
+
+
+
+/**
+ * Update the currently authenticated user's email address.
+ * Sends a confirmation email to the new address.
+ * Requires a valid session (user must be logged in).
+ */
+export const updateEmail = async (userId: string, newEmail: string) => {
+    try {
+        const { error } = await supabaseAdmin.auth.updateUser(
+            { email: newEmail, },
+            {
+                emailRedirectTo: 'pipelineSports://SettingsMain'
+            });
+
+        if (error) {
+            console.log('Email update error:', error);
+            return { success: false, error: error.message };
+        }
+
+        console.log('Email update initiated successfully');
+        return { success: true, error: null };
+    } catch (error) {
+        console.log('Email update failed:', error);
+        const errorMessage = (error instanceof Error) ? error.message : 'An unexpected error occurred during email update.';
+        return { success: false, error: errorMessage };
     }
 }
 

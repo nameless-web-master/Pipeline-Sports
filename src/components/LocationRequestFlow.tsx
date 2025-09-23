@@ -24,11 +24,11 @@ const LocationRequestFlow: React.FC<LocationRequestFlowProps> = ({
     // 0 = request form, 1 = select state, 2 = success
     const [currentState, setCurrentState] = useState<0 | 1 | 2>(0);
     const [isLoading, setIsLoading] = useState(false);
-    const [location, setLocation] = useState<LocationType>({ state: '', city: '', id: 0 });
+    const [location, setLocation] = useState<LocationType>({ state: '', city: '', id: 0, cityID: null });
 
     const handleClose = () => {
         setCurrentState(0);
-        setLocation({ state: '', city: '', id: 0 });
+        setLocation({ state: '', city: '', id: 0, cityID: null });
         stepAfterClose?.();
     };
 
@@ -37,7 +37,10 @@ const LocationRequestFlow: React.FC<LocationRequestFlowProps> = ({
             setIsLoading(true);
             const newOnBoardingData = {
                 ...onboardingData,
-                location: { state: location.state, area: location.city }
+                location: {
+                    state: location.id,
+                    area: location.cityID
+                }
             };
             await handleCompleteOnboarding(newOnBoardingData);
         } catch (error) {
